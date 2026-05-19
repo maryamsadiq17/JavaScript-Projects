@@ -82,3 +82,54 @@ button:active {
 .error:empty {
   display: none;
 }
+/* Two buttons side by side */
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.button-group button {
+  flex: 1;
+  margin-bottom: 0; /* override any existing bottom margin */
+}
+
+#clear-button {
+  background: transparent;
+  color: #5344c2;
+  border: 1.5px solid #5344c2;
+}
+
+#clear-button:hover {
+  background: rgba(83, 68, 194, 0.08);
+}
+
+/* Result labeled block */
+.result-block {
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  background: #f9fafb;
+}
+
+.result-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+}
+
+.result-block .result {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f6e56;
+}
+
+/* Hide result block when empty */
+.hidden {
+  display: none;
+}

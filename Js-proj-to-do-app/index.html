@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do list App</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <!-- Main card container to keep everything neat and centered -->
+    <div class="todo-container">
+        <h2>My Task List</h2>
+        
+        <!-- Input section where users type and click add -->
+        <div class="todo-input-area">
+            <input type="text" id="todo-input" placeholder="What needs to be done?">
+            <button id="add-btn">Add Task</button>
+        </div>
+
+        <!-- The empty landing pad list for our JavaScript items -->
+        <ul id="todo-list"></ul>
+    </div>
+
+    <!-- Link our JavaScript logic file at the bottom so HTML loads first -->
+    <script src="Scripts/script.js"></script>
+</body>
+</html>
+
