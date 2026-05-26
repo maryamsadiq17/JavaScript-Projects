@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>24-Hour Stories Feature</title>
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Stories Header Tray -->
+    <div class="stories-tray" id="storiesTray">
+      <!-- Creator plus button (Always present) -->
+      <div class="story-item create-story" id="addStoryBtn">
+        <div class="thumb-wrapper">
+          <span class="plus-icon">+</span>
+        </div>
+        <span class="story-username">Your Story</span>
+        <!-- Hidden file input for uploading images -->
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+      </div>
+      
+      <!-- Uploaded dynamic stories will render here -->
+      <div id="dynamicStories" class="dynamic-stories-container"></div>
+    </div>
+
+  </div>
+
+  <!-- Fullscreen Story Viewer Modal -->
+  <div class="story-viewer" id="storyViewer">
+    <!-- Close Button -->
+    <button class="close-btn" id="closeViewerBtn" aria-label="Close Viewer">&times;</button>
+    
+    <!-- Progress Bars Header Indicators -->
+    <div class="progress-container" id="progressContainer"></div>
+
+    <!-- Story Content Area -->
+    <div class="viewer-body">
+      <!-- Navigation tap areas -->
+      <div class="nav-tap left-tap" id="leftTap"></div>
+      <div class="nav-tap right-tap" id="rightTap"></div>
+      
+      <!-- Rendered Image -->
+      <img id="viewerImage" src="" alt="Story Content">
+    </div>
+  </div>
+
+  <script src="scripts/script.js"></script>
+</body>
+</html>

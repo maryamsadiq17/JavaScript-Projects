@@ -1,0 +1,215 @@
+/* Base Layout Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: #fafafa;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding-top: 30px;
+}
+
+/* App Main Container */
+.app-container {
+  width: 100%;
+  max-width: 450px;
+  background: #ffffff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* Stories Tray Bar */
+.stories-tray {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+/* Hide scrollbar tracks for modern look */
+.stories-tray::-webkit-scrollbar {
+  display: none;
+}
+.stories-tray {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.dynamic-stories-container {
+  display: flex;
+  gap: 12px;
+}
+
+/* Standard Story Unit Grid */
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 72px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.thumb-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Creator item overrides standard ring colors */
+.create-story .thumb-wrapper {
+  background: #e0e0e0;
+  position: relative;
+}
+
+.create-story .plus-icon {
+  font-size: 24px;
+  color: #0095f6;
+  font-weight: bold;
+}
+
+.story-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+.story-username {
+  font-size: 11px;
+  margin-top: 4px;
+  color: #262626;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Full Screen Story Viewer Modal --- */
+.story-viewer {
+  display: none; /* Controlled by JS switching to 'flex' */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #1a1a1a;
+  z-index: 1000;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.story-viewer.active {
+  display: flex;
+}
+
+/* Viewer Body Layout */
+.viewer-body {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  height: 100%;
+  max-height: 850px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.viewer-body img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none; /* Prevents long-press image options on mobile breaking taps */
+}
+
+/* Progress Headers */
+.progress-container {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  gap: 4px;
+  padding: 0 10px;
+  z-index: 1010;
+}
+
+.progress-track {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #ffffff;
+  transition: width 0.1s linear; /* Smooth visual steps */
+}
+
+/* Interactive Navigation Tap Overlays */
+.nav-tap {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 1005;
+}
+
+.left-tap {
+  left: 0;
+  width: 30%;
+}
+
+.right-tap {
+  right: 0;
+  width: 70%;
+}
+
+/* UI Elements Control */
+.close-btn {
+  position: absolute;
+  top: 25px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 32px;
+  cursor: pointer;
+  z-index: 1020;
+  text-shadow: 0px 1px 4px rgba(0,0,0,0.6);
+}
+
+/* Mobile Media Queries */
+@media (max-width: 480px) {
+  body {
+    padding-top: 0;
+    background-color: #ffffff;
+  }
+  .app-container {
+    border: none;
+    border-radius: 0;
+  }
+  .viewer-body {
+    max-height: 100vh;
+  }
+}
