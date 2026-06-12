@@ -1,0 +1,81 @@
+/* css/typography.css */
+
+/*
+  WHY: We define typography rules globally so that heading styles 
+  are consistent everywhere without repeating yourself.
+*/
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-primary);
+  line-height: var(--line-height-normal);
+}
+
+/* 
+  Heading hierarchy — each heading has one job.
+  h1 = page title (used once, in the hero)
+  h2 = major section heading
+  h3 = card/feature heading
+  h4+ = sub-labels
+*/
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.02em; /* Slight tightening — characteristic of modern SaaS design */
+}
+
+h1 { font-size: var(--font-size-3xl); }  /* Mobile: 40px */
+h2 { font-size: var(--font-size-2xl); }  /* Mobile: 32px */
+h3 { font-size: var(--font-size-xl); }   /* Mobile: 24px */
+h4 { font-size: var(--font-size-lg); }   /* Mobile: 20px */
+
+/* Desktop overrides */
+@media (min-width: 1024px) {
+  h1 { font-size: var(--font-size-5xl); }  /* Desktop: 72px */
+  h2 { font-size: var(--font-size-4xl); }  /* Desktop: 56px */
+  h3 { font-size: var(--font-size-2xl); }  /* Desktop: 32px */
+}
+
+p {
+  color: var(--color-text-secondary);
+  max-width: 65ch; /* 
+    WHY: "ch" is the width of the "0" character. 65ch ≈ 65 characters per line.
+    This is the typographer's rule for optimal reading length.
+    Lines that are too long cause eye fatigue.
+  */
+}
+
+/* 
+  The "label" style — small uppercase tracking text 
+  used for section labels like "FIG 0.2" on Linear's site
+*/
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.1em;  /* WHY: Uppercase text needs extra spacing to be readable */
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+/* Gradient text effect — used on Linear's hero headline */
+.text-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-text-primary) 0%,
+    var(--color-text-secondary) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  /*
+    HOW THIS WORKS:
+    1. We set a gradient as the background of the text element
+    2. We clip the background to only show through the text shapes
+    3. We make the text color transparent so the gradient shows through
+    This is a pure CSS technique — no images needed.
+  */
+}

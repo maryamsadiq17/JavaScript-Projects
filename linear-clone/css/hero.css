@@ -1,0 +1,140 @@
+/* ==========================================================================
+   css/hero.css - Mobile-First Engineering Layout
+   ========================================================================== */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: calc(var(--navbar-height) + var(--space-12)); /* Clear sticky headers safely */
+  padding-bottom: var(--space-20);
+}
+
+/* --- 1. Announcement Pill Badge --- */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-6);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.hero-badge:hover {
+  border-color: var(--color-border-hover);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.badge-tag {
+  background: var(--color-purple);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.badge-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.badge-arrow {
+  color: var(--color-text-tertiary);
+  transition: transform var(--transition-fast);
+}
+
+.hero-badge:hover .badge-arrow {
+  transform: translateX(2px);
+  color: var(--color-text-secondary);
+}
+
+/* --- 2. Typography Adjustments --- */
+.hero-title {
+  max-width: 20ch;
+  line-height: 1.1;
+  margin-bottom: var(--space-4);
+}
+
+.hero-subtitle {
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-8);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.desktop-only {
+  display: none; /* Hide multi-line formatting splits on tiny phones */
+}
+
+/* --- 3. Action Block Lineup --- */
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 300px; /* Force stack layout naturally on tight mobile frames */
+  margin-bottom: var(--space-16);
+}
+
+/* --- 4. High-Performance Interactive Image Stage --- */
+.hero-visual-container {
+  width: 100%;
+  perspective: 1200px; /* Establishes a 3D environment space for future rotations */
+  margin-top: var(--space-4);
+}
+
+.hero-image-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  background: var(--color-bg-secondary);
+  overflow: hidden;
+  
+  /* Inform the device GPU this wrapper layer will transform dynamically */
+  will-change: transform;
+  transform: translate3d(0, 0, 0); 
+}
+
+.hero-app-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.hero-glow-overlay {
+  position: absolute;
+  inset: 0;
+  box-shadow: var(--shadow-glow);
+  pointer-events: none; /* Make sure click triggers pass cleanly into elements underneath */
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   PROGRESSIVE ENHANCEMENT RESPONSIVE BREAKPOINTS (Desktop & Large Tablets)
+   ========================================================================== */
+
+@media (min-width: 768px) {
+  .hero {
+    padding-top: calc(var(--navbar-height) + var(--space-24));
+  }
+
+  .desktop-only {
+    display: inline;
+  }
+
+  .hero-actions {
+    flex-direction: row;
+    max-width: none;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+}

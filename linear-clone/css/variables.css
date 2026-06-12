@@ -1,0 +1,125 @@
+/* css/variables.css */
+
+/*
+  WHY CSS Variables?
+  Without variables, if Linear's primary purple is #5E6AD2, you'd type that 
+  hex code 50+ times across your CSS. When they change it to #6172e3, 
+  you have to find-and-replace 50 places. With a variable, you change ONE line.
+  
+  They also adapt to dark/light mode automatically using :root selectors.
+*/
+
+:root {
+  /* =====================
+     COLOR PALETTE
+  ===================== */
+
+  /* Brand colors (Linear's signature palette) */
+  --color-purple:       #5e6ad2;
+  --color-purple-light: #7c85e0;
+  --color-purple-dark:  #4a56c4;
+
+  /* Background colors (dark theme base) */
+  --color-bg-primary:   #08090a;   /* Almost black — main page background */
+  --color-bg-secondary: #111213;   /* Slightly lighter — card/section backgrounds */
+  --color-bg-tertiary:  #1a1b1e;   /* Borders, dividers */
+
+  /* Text colors */
+  --color-text-primary:   #f2f2f2; /* Near white — headlines */
+  --color-text-secondary: #9b9b9b; /* Gray — body copy, descriptions */
+  --color-text-tertiary:  #5a5a5a; /* Dark gray — placeholders, hints */
+
+  /* Border colors */
+  --color-border:         rgba(255, 255, 255, 0.08); /* Subtle white borders */
+  --color-border-hover:   rgba(255, 255, 255, 0.15);
+
+  /* =====================
+     TYPOGRAPHY SCALE
+     Uses a modular scale (each step is ~1.25x the previous)
+  ===================== */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  --font-size-xs:   1.2rem;   /* 12px */
+  --font-size-sm:   1.4rem;   /* 14px */
+  --font-size-base: 1.6rem;   /* 16px — body copy */
+  --font-size-md:   1.8rem;   /* 18px */
+  --font-size-lg:   2.0rem;   /* 20px */
+  --font-size-xl:   2.4rem;   /* 24px */
+  --font-size-2xl:  3.2rem;   /* 32px */
+  --font-size-3xl:  4.0rem;   /* 40px */
+  --font-size-4xl:  5.6rem;   /* 56px */
+  --font-size-5xl:  7.2rem;   /* 72px — hero headline on desktop */
+
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:    700;
+
+  --line-height-tight:  1.2;   /* Headlines */
+  --line-height-normal: 1.6;   /* Body copy */
+  --line-height-loose:  1.8;   /* Longer paragraphs */
+
+  /* =====================
+     SPACING SCALE
+     Based on an 8px grid — every value is a multiple of 8.
+     WHY: This creates visual rhythm and consistency across the page.
+  ===================== */
+  --space-1:  0.4rem;   /* 4px */
+  --space-2:  0.8rem;   /* 8px */
+  --space-3:  1.2rem;   /* 12px */
+  --space-4:  1.6rem;   /* 16px */
+  --space-5:  2.0rem;   /* 20px */
+  --space-6:  2.4rem;   /* 24px */
+  --space-8:  3.2rem;   /* 32px */
+  --space-10: 4.0rem;   /* 40px */
+  --space-12: 4.8rem;   /* 48px */
+  --space-16: 6.4rem;   /* 64px */
+  --space-20: 8.0rem;   /* 80px */
+  --space-24: 9.6rem;   /* 96px */
+
+  /* =====================
+     BORDER RADIUS
+  ===================== */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px; /* Pills / fully rounded */
+
+  /* =====================
+     SHADOWS
+  ===================== */
+  --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 40px rgba(94, 106, 210, 0.3); /* Purple glow effect */
+
+  /* =====================
+     TRANSITIONS & ANIMATIONS
+     WHY: Centralizing these means all UI feels consistently smooth.
+     The "ease" and "duration" values are tuned to match Linear's feel.
+  ===================== */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* =====================
+     LAYOUT
+  ===================== */
+  --max-width:       1200px;  /* Max content width */
+  --navbar-height:   64px;    /* Fixed navbar height — used in padding calculations */
+
+  /* =====================
+     Z-INDEX SCALE
+     WHY: Managing z-index without a scale leads to "z-index: 9999" wars.
+     Give each layer a semantic name and a predictable number.
+  ===================== */
+  --z-base:     1;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-navbar:   300;
+  --z-overlay:  400;
+  --z-modal:    500;
+}

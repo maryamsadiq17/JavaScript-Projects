@@ -1,0 +1,67 @@
+/* css/reset.css */
+
+/* 
+  WHY: The "box-sizing: border-box" rule is the most important CSS reset.
+  By default, adding padding to an element makes it BIGGER (padding adds to width).
+  "border-box" means padding is included IN the width — so a 200px element 
+  with 20px padding stays 200px wide. This is far more predictable to work with.
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+  WHY: By default, font-size is 16px. Setting it to 62.5% makes it 10px.
+  Now 1rem = 10px, so 1.6rem = 16px, 2.4rem = 24px. 
+  This makes rem-based sizing intuitive — no mental math.
+*/
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth; /* Smooth scrolling for anchor links */
+}
+
+body {
+  font-size: 1.6rem; /* Restores 16px as the default */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased; /* Makes text crisper on Mac/retina */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove default list styling */
+ul, ol {
+  list-style: none;
+}
+
+/* Remove underline from links; inherit color from parent */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Make images responsive by default */
+img, video {
+  max-width: 100%;
+  display: block; /* Removes the small gap below images */
+}
+
+/* Make form elements inherit font styles (they don't by default) */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* 
+  WHY: If a user has set "prefers-reduced-motion" in their OS accessibility 
+  settings, we disable ALL animations. This is a WCAG accessibility requirement.
+  Always include this in professional projects.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
