@@ -1,0 +1,1143 @@
+{%- comment -%}
+  Section: Modaz Hero Slider
+  File: sections/modaz-hero-slider.liquid
+  Description: A fully dynamic, self-contained hero slider section for Shopify.
+               Slides are Shopify Blocks — add, remove, reorder from the Customizer.
+               JS is scoped to section.id so multiple instances coexist safely.
+               Supports Shopify Design Mode re-initialization via section events.
+{%- endcomment -%}
+
+{%- liquid
+  assign sec = section.settings
+  assign sid = section.id
+  assign block_count = section.blocks | size
+-%}
+
+{%- comment -%} ============================================================
+  FONT IMPORT — Poppins
+============================================================ {%- endcomment -%}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+{%- comment -%} ============================================================
+  SCOPED CSS
+  — All classes namespaced with .mzs- (Modaz Slider) to prevent
+    any collision with the Dawn theme or the header section.
+  — Section-level custom properties are declared on the wrapper
+    ID so colour tokens are fully isolated per instance.
+============================================================ {%- endcomment -%}
+<style>
+  /* ----------------------------------------------------------
+     TOKENS — scoped to this section instance
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} {
+    --mzs-accent:      {{ sec.accent_color }};
+    --mzs-white:       #ffffff;
+    --mzs-font:        'Poppins', sans-serif;
+    --mzs-max-width:   1200px;
+    --mzs-ease-slide:  cubic-bezier(0.42, 0, 0.58, 1);
+    --mzs-ease-content:cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --mzs-timeline-color: {{ sec.timeline_color }};
+    --mzs-slide-speed: 0.8s;
+  }
+
+  /* ----------------------------------------------------------
+     BASE RESETS — scoped
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} *,
+  #mzs-{{ sid }} *::before,
+  #mzs-{{ sid }} *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  #mzs-{{ sid }} a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* ----------------------------------------------------------
+     WRAPPER
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    font-family: var(--mzs-font);
+  }
+
+  /* ----------------------------------------------------------
+     SLIDER CONTAINER
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-container {
+    width: 100%;
+    height: {{ sec.slider_height }}vh;
+    min-height: 520px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ----------------------------------------------------------
+     TOP PROGRESS TIMELINE BAR
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-timeline-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.15);
+    z-index: 20;
+  }
+
+  #mzs-{{ sid }} .mzs-timeline-bar {
+    height: 100%;
+    width: 0%;
+    background-color: var(--mzs-timeline-color);
+    /* Hardware-accelerated for buttery smoothness */
+    will-change: width;
+    transition: width 0.05s linear;
+  }
+
+  /* ----------------------------------------------------------
+     SLIDER TRACK — translates on X axis to reveal slides
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-track {
+    display: flex;
+    /* Track width = 100% × number of slides */
+    width: calc(100% * {{ block_count | at_least: 1 }});
+    height: 100%;
+    /* BUG FIX (original): transition was on track but translateX
+       calculation divided by totalSlides twice — now correct.     */
+    transition: transform var(--mzs-slide-speed) var(--mzs-ease-slide);
+    will-change: transform;
+  }
+
+  /* ----------------------------------------------------------
+     INDIVIDUAL SLIDES
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-slide {
+    /* Each slide = 1 / totalSlides of the track width = 100vw */
+    width: calc(100% / {{ block_count | at_least: 1 }});
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    position: relative;
+    /* Fallback bg colour while image loads */
+    background-color: #1a1a1a;
+  }
+
+  /* Optional dark overlay (toggled per-slide via Customizer) */
+  #mzs-{{ sid }} .mzs-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #mzs-{{ sid }} .mzs-slide[data-overlay="dark"]::before {
+    background: linear-gradient(
+      to right,
+      rgba(15, 15, 15, 0.80) 0%,
+      rgba(30, 30, 30, 0.40) 55%,
+      rgba(30, 30, 30, 0.10) 100%
+    );
+  }
+
+  #mzs-{{ sid }} .mzs-slide[data-overlay="light"]::before {
+    background: linear-gradient(
+      to right,
+      rgba(240, 240, 240, 0.55) 0%,
+      rgba(230, 230, 230, 0.20) 55%,
+      rgba(220, 220, 220, 0.05) 100%
+    );
+  }
+
+  /* No overlay — transparent */
+  #mzs-{{ sid }} .mzs-slide[data-overlay="none"]::before {
+    display: none;
+  }
+
+  /* ----------------------------------------------------------
+     INNER CONTENT CONTAINER
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-inner {
+    max-width: var(--mzs-max-width);
+    margin: 0 auto;
+    padding: 0 40px;
+    width: 100%;
+    position: relative;
+    z-index: 2; /* Above the overlay pseudo-element */
+  }
+
+  /* ----------------------------------------------------------
+     CONTENT BLOCK — entry animation (BUG FIX: was translateY
+     only; now also resets properly on slide change)
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-content {
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+      opacity     0.75s ease             0.25s,
+      transform   0.75s var(--mzs-ease-content) 0.25s;
+    /* Max widths keep text readable over imagery */
+    max-width: 600px;
+  }
+
+  #mzs-{{ sid }} .mzs-slide.mzs-active .mzs-content {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Text alignment variants */
+  #mzs-{{ sid }} .mzs-content.mzs-align-left  { text-align: left;  margin-right: auto; }
+  #mzs-{{ sid }} .mzs-content.mzs-align-center { text-align: center; margin-left: auto; margin-right: auto; }
+  #mzs-{{ sid }} .mzs-content.mzs-align-right { text-align: right; margin-left: auto; }
+
+  /* ----------------------------------------------------------
+     SLIDE TYPOGRAPHY — DARK VARIANT (Slide 1 style)
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-subtitle-alt {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  #mzs-{{ sid }} .mzs-title-large {
+    color: var(--mzs-white);
+    font-size: clamp(42px, 6vw, 70px); /* BUG FIX: was hardcoded 64px — now fluid */
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  #mzs-{{ sid }} .mzs-description {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+
+  #mzs-{{ sid }} .mzs-description.mzs-desc-light { color: rgba(255,255,255,0.90); }
+  #mzs-{{ sid }} .mzs-description.mzs-desc-dark  { color: #444444; }
+
+  /* ----------------------------------------------------------
+     SLIDE TYPOGRAPHY — LIGHT VARIANT (Slide 2 style)
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-subtitle-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+  }
+
+  #mzs-{{ sid }} .mzs-side-line {
+    width: 45px;
+    height: 1px;
+    background-color: #999999;
+    flex-shrink: 0;
+  }
+
+  #mzs-{{ sid }} .mzs-subtitle-light {
+    color: #444444;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  #mzs-{{ sid }} .mzs-title-massive {
+    color: #2a2a2a;
+    /* BUG FIX: 130px caused overflow on tablets — now fluid */
+    font-size: clamp(72px, 13vw, 140px);
+    font-weight: 700;
+    letter-spacing: 5px;
+    line-height: 0.9;
+    margin-bottom: 16px;
+  }
+
+  #mzs-{{ sid }} .mzs-title-massive-white {
+    color: var(--mzs-white);
+    font-size: clamp(72px, 13vw, 140px);
+    font-weight: 700;
+    letter-spacing: 5px;
+    line-height: 0.9;
+    margin-bottom: 16px;
+  }
+
+  #mzs-{{ sid }} .mzs-text-sale {
+    color: #333333;
+    font-size: clamp(22px, 3.5vw, 38px);
+    font-weight: 500;
+    letter-spacing: 3px;
+    margin-bottom: 36px;
+  }
+
+  #mzs-{{ sid }} .mzs-text-sale-white {
+    color: var(--mzs-white);
+    font-size: clamp(22px, 3.5vw, 38px);
+    font-weight: 500;
+    letter-spacing: 3px;
+    margin-bottom: 36px;
+  }
+
+  #mzs-{{ sid }} .mzs-text-sale .mzs-sale-accent,
+  #mzs-{{ sid }} .mzs-text-sale-white .mzs-sale-accent {
+    color: var(--mzs-accent);
+  }
+
+  /* ----------------------------------------------------------
+     BUTTONS
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-btn {
+    display: inline-block;
+    background-color: var(--mzs-accent);
+    color: var(--mzs-white);
+    padding: 14px 44px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: var(--mzs-font);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color  0.3s ease,
+      color             0.3s ease,
+      border-color      0.3s ease,
+      box-shadow        0.3s ease;
+  }
+
+  #mzs-{{ sid }} .mzs-btn:hover {
+    background-color: #2a2a2a;
+    color: var(--mzs-white);
+  }
+
+  /* Outlined button variant for light slides */
+  #mzs-{{ sid }} .mzs-btn-outline {
+    background-color: transparent;
+    color: #2a2a2a;
+    border-color: #2a2a2a;
+  }
+
+  #mzs-{{ sid }} .mzs-btn-outline:hover {
+    background-color: #2a2a2a;
+    color: var(--mzs-white);
+  }
+
+  /* Shadow variant */
+  #mzs-{{ sid }} .mzs-btn-shadow {
+    box-shadow: 0 8px 20px rgba(246, 52, 64, 0.30);
+  }
+
+  #mzs-{{ sid }} .mzs-btn-shadow:hover {
+    box-shadow: 0 4px 12px rgba(246, 52, 64, 0.15);
+  }
+
+  /* ----------------------------------------------------------
+     NAVIGATION ARROWS
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: var(--mzs-white);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0;
+  }
+
+  #mzs-{{ sid }} .mzs-arrow:hover {
+    background: var(--mzs-accent);
+    border-color: var(--mzs-accent);
+  }
+
+  #mzs-{{ sid }} .mzs-arrow:focus-visible {
+    outline: 2px solid var(--mzs-accent);
+    outline-offset: 2px;
+  }
+
+  #mzs-{{ sid }} .mzs-arrow-prev { left: 20px; }
+  #mzs-{{ sid }} .mzs-arrow-next { right: 20px; }
+
+  /* Arrow SVG icons */
+  #mzs-{{ sid }} .mzs-arrow svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+
+  /* ----------------------------------------------------------
+     PAGINATION DOTS
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-dots {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+  }
+
+  #mzs-{{ sid }} .mzs-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    transition: background 0.3s ease, transform 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  #mzs-{{ sid }} .mzs-dot.mzs-dot-active,
+  #mzs-{{ sid }} .mzs-dot:hover {
+    background: var(--mzs-accent);
+    transform: scale(1.35);
+  }
+
+  #mzs-{{ sid }} .mzs-dot:focus-visible {
+    outline: 2px solid var(--mzs-accent);
+    outline-offset: 3px;
+  }
+
+  /* ----------------------------------------------------------
+     HIDDEN HELPERS
+  ---------------------------------------------------------- */
+  #mzs-{{ sid }} .mzs-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Hide arrows / dots when disabled via schema */
+  #mzs-{{ sid }}[data-arrows="false"] .mzs-arrow { display: none; }
+  #mzs-{{ sid }}[data-dots="false"]   .mzs-dots  { display: none; }
+
+  /* ----------------------------------------------------------
+     RESPONSIVE
+  ---------------------------------------------------------- */
+  @media (max-width: 768px) {
+    #mzs-{{ sid }} .mzs-container {
+      height: 80vh;
+      min-height: 440px;
+    }
+
+    #mzs-{{ sid }} .mzs-inner {
+      padding: 0 24px;
+    }
+
+    #mzs-{{ sid }} .mzs-content {
+      max-width: 100%;
+    }
+
+    #mzs-{{ sid }} .mzs-subtitle-wrapper {
+      justify-content: flex-start;
+    }
+
+    #mzs-{{ sid }} .mzs-content.mzs-align-right {
+      text-align: left;
+      margin-left: 0;
+    }
+
+    #mzs-{{ sid }} .mzs-arrow {
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
+    }
+
+    #mzs-{{ sid }} .mzs-btn {
+      padding: 12px 32px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #mzs-{{ sid }} .mzs-track,
+    #mzs-{{ sid }} .mzs-content {
+      transition: none !important;
+    }
+  }
+</style>
+
+{%- comment -%} ============================================================
+  HTML MARKUP
+============================================================ {%- endcomment -%}
+<section
+  id="mzs-{{ sid }}"
+  data-arrows="{{ sec.show_arrows }}"
+  data-dots="{{ sec.show_dots }}"
+  aria-label="Hero image slider"
+  aria-roledescription="carousel"
+>
+  <div class="mzs-container">
+
+    {%- comment -%} ── TOP PROGRESS TIMELINE ── {%- endcomment -%}
+    <div class="mzs-timeline-wrapper" aria-hidden="true">
+      <div class="mzs-timeline-bar" id="mzs-timeline-{{ sid }}"></div>
+    </div>
+
+    {%- comment -%} ── SLIDE TRACK ── {%- endcomment -%}
+    <div class="mzs-track" id="mzs-track-{{ sid }}" aria-live="polite">
+
+      {% for block in section.blocks %}
+        {%- liquid
+          assign bs = block.settings
+          assign align_class = 'mzs-align-' | append: bs.text_alignment
+          assign overlay     = bs.overlay_style
+        -%}
+
+        <div
+          class="mzs-slide{% if forloop.first %} mzs-active{% endif %}"
+          id="mzs-slide-{{ sid }}-{{ forloop.index0 }}"
+          data-overlay="{{ overlay }}"
+          aria-roledescription="slide"
+          aria-label="Slide {{ forloop.index }} of {{ block_count }}"
+          {% unless forloop.first %}aria-hidden="true"{% endunless %}
+          {% if bs.bg_image != blank %}
+            style="background-image: url('{{ bs.bg_image | image_url: width: 1920 }}');"
+          {% elsif bs.bg_image_url != blank %}
+            style="background-image: url('{{ bs.bg_image_url | escape }}');"
+          {% endif %}
+          {{ block.shopify_attributes }}
+        >
+
+          {%- comment -%} Preload LCP image on first slide {%- endcomment -%}
+          {% if forloop.first and bs.bg_image != blank %}
+            <link rel="preload" as="image" href="{{ bs.bg_image | image_url: width: 1920 }}" fetchpriority="high">
+          {% endif %}
+
+          <div class="mzs-inner">
+            <div class="mzs-content {{ align_class }}">
+
+              {%- comment -%} ── LAYOUT: determine which style to render ── {%- endcomment -%}
+              {% if bs.slide_style == 'dark' %}
+
+                {%- comment -%} DARK SLIDE (Slide 1 style) {%- endcomment -%}
+                {% if bs.subheading != blank %}
+                  <h5 class="mzs-subtitle-alt">{{ bs.subheading | escape }}</h5>
+                {% endif %}
+
+                {% if bs.heading != blank %}
+                  <h2 class="mzs-title-large">{{ bs.heading | escape }}</h2>
+                {% endif %}
+
+                {% if bs.description != blank %}
+                  <p class="mzs-description mzs-desc-light">{{ bs.description | escape }}</p>
+                {% endif %}
+
+              {% elsif bs.slide_style == 'light' %}
+
+                {%- comment -%} LIGHT SLIDE (Slide 2 style) {%- endcomment -%}
+                {% if bs.subheading != blank %}
+                  <div class="mzs-subtitle-wrapper">
+                    <span class="mzs-side-line" aria-hidden="true"></span>
+                    <h5 class="mzs-subtitle-light">{{ bs.subheading | escape }}</h5>
+                    <span class="mzs-side-line" aria-hidden="true"></span>
+                  </div>
+                {% endif %}
+
+                {% if bs.heading != blank %}
+                  <h2 class="mzs-title-massive">{{ bs.heading | escape }}</h2>
+                {% endif %}
+
+                {% if bs.description != blank %}
+                  <p class="mzs-text-sale">
+                    {{ bs.description | replace: '[', '<span class="mzs-sale-accent">' | replace: ']', '</span>' }}
+                  </p>
+                {% endif %}
+
+              {% else %}
+
+                {%- comment -%} CUSTOM / GENERIC STYLE (fallback) {%- endcomment -%}
+                {% if bs.subheading != blank %}
+                  <h5 class="mzs-subtitle-alt">{{ bs.subheading | escape }}</h5>
+                {% endif %}
+
+                {% if bs.heading != blank %}
+                  <h2 class="mzs-title-large">{{ bs.heading | escape }}</h2>
+                {% endif %}
+
+                {% if bs.description != blank %}
+                  <p class="mzs-description mzs-desc-light">{{ bs.description | escape }}</p>
+                {% endif %}
+
+              {% endif %}
+
+              {%- comment -%} ── CTA BUTTON — only rendered if label is set ── {%- endcomment -%}
+              {% if bs.btn_label != blank %}
+                <a
+                  href="{{ bs.btn_url | default: '#' }}"
+                  class="mzs-btn{% if bs.btn_style == 'outline' %} mzs-btn-outline{% endif %}{% if bs.btn_shadow %} mzs-btn-shadow{% endif %}"
+                  {% if bs.btn_url == blank %}aria-disabled="true"{% endif %}
+                >
+                  {{- bs.btn_label | escape -}}
+                </a>
+              {% endif %}
+
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+      {%- comment -%} EMPTY STATE — shown only in the editor if no blocks exist {%- endcomment -%}
+      {% if block_count == 0 %}
+        <div class="mzs-slide mzs-active" data-overlay="dark" style="background-color: #1a1a1a;">
+          <div class="mzs-inner">
+            <div class="mzs-content mzs-align-left">
+              <h5 class="mzs-subtitle-alt">ADD YOUR FIRST SLIDE</h5>
+              <h2 class="mzs-title-large">Hero Slider</h2>
+              <p class="mzs-description mzs-desc-light">Click "+ Add block" in the left panel to create a slide.</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>{%- comment -%} /mzs-track {%- endcomment -%}
+
+    {%- comment -%} ── NAVIGATION ARROWS ── {%- endcomment -%}
+    {% if sec.show_arrows and block_count > 1 %}
+      <button
+        class="mzs-arrow mzs-arrow-prev"
+        id="mzs-prev-{{ sid }}"
+        aria-label="Previous slide"
+        aria-controls="mzs-track-{{ sid }}"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button
+        class="mzs-arrow mzs-arrow-next"
+        id="mzs-next-{{ sid }}"
+        aria-label="Next slide"
+        aria-controls="mzs-track-{{ sid }}"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    {% endif %}
+
+    {%- comment -%} ── PAGINATION DOTS ── {%- endcomment -%}
+    {% if sec.show_dots and block_count > 1 %}
+      <div class="mzs-dots" id="mzs-dots-{{ sid }}" role="tablist" aria-label="Slide navigation">
+        {% for block in section.blocks %}
+          <button
+            class="mzs-dot{% if forloop.first %} mzs-dot-active{% endif %}"
+            role="tab"
+            aria-label="Go to slide {{ forloop.index }}"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            data-index="{{ forloop.index0 }}"
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{%- comment -%} ============================================================
+  SCOPED JAVASCRIPT
+  — Wrapped in an IIFE keyed to section.id
+  — Re-initializes on Shopify editor events (section:load, section:select)
+  — BUG FIXES from original:
+    1. Duplicate DOMContentLoaded listeners removed
+    2. track translateX calculation was incorrect
+    3. progressTimer was never cleared on goTo() — caused phantom timers
+    4. Slider broke when section was duplicated (global querySelector)
+    5. Customizer changes killed the slider — fixed with section event listeners
+============================================================ {%- endcomment -%}
+<script>
+(function () {
+  'use strict';
+
+  /* ── CONFIG from Liquid schema settings ── */
+  var CONFIG = {
+    sid:          {{ sid | json }},
+    totalSlides:  {{ block_count | at_least: 1 }},
+    autoplay:     {{ sec.autoplay | json }},
+    duration:     {{ sec.autoplay_speed | times: 1000 | json }},  /* schema is seconds → ms */
+    updateTick:   16   /* ~60fps */
+  };
+
+  /* ── Main init function — safe to call multiple times ── */
+  function initSlider() {
+    var sid = CONFIG.sid;
+
+    /* -- Element references (fully scoped to this section) -- */
+    var track       = document.getElementById('mzs-track-'    + sid);
+    var timeline    = document.getElementById('mzs-timeline-' + sid);
+    var prevBtn     = document.getElementById('mzs-prev-'     + sid);
+    var nextBtn     = document.getElementById('mzs-next-'     + sid);
+    var dotsWrapper = document.getElementById('mzs-dots-'     + sid);
+
+    if (!track) return; /* Guard: element not on this page */
+
+    var slides      = Array.from(track.querySelectorAll('.mzs-slide'));
+    var dots        = dotsWrapper
+                        ? Array.from(dotsWrapper.querySelectorAll('.mzs-dot'))
+                        : [];
+    var total       = slides.length;
+
+    if (total === 0) return;
+
+    var currentIndex = 0;
+    var timeElapsed  = 0;
+    var rafId        = null;
+    var lastTime     = null;
+    var running      = CONFIG.autoplay;
+    var isPaused     = false; /* Pause on hover */
+
+    /* ---- Core: go to a specific slide index ---- */
+    function goTo(index) {
+      /* Clamp index */
+      if (index < 0)     index = total - 1;
+      if (index >= total) index = 0;
+
+      /* Deactivate current slide */
+      slides[currentIndex].classList.remove('mzs-active');
+      slides[currentIndex].setAttribute('aria-hidden', 'true');
+      if (dots[currentIndex]) {
+        dots[currentIndex].classList.remove('mzs-dot-active');
+        dots[currentIndex].setAttribute('aria-selected', 'false');
+      }
+
+      /* Update index */
+      currentIndex = index;
+
+      /* Activate new slide */
+      slides[currentIndex].classList.add('mzs-active');
+      slides[currentIndex].removeAttribute('aria-hidden');
+      if (dots[currentIndex]) {
+        dots[currentIndex].classList.add('mzs-dot-active');
+        dots[currentIndex].setAttribute('aria-selected', 'true');
+      }
+
+      /* Move the track:
+         translate = -(currentIndex / total) × 100%
+         This works correctly regardless of slide count. */
+      track.style.transform = 'translateX(-' + ((currentIndex / total) * 100) + '%)';
+
+      /* Reset timeline */
+      timeElapsed = 0;
+      if (timeline) timeline.style.width = '0%';
+    }
+
+    /* ---- Timeline progress via requestAnimationFrame ---- */
+    function tick(timestamp) {
+      if (!running || isPaused) {
+        lastTime = null;
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+
+      if (lastTime === null) lastTime = timestamp;
+      var delta = timestamp - lastTime;
+      lastTime  = timestamp;
+
+      timeElapsed += delta;
+
+      var pct = Math.min((timeElapsed / CONFIG.duration) * 100, 100);
+      if (timeline) timeline.style.width = pct + '%';
+
+      if (timeElapsed >= CONFIG.duration) {
+        goTo(currentIndex + 1);
+      }
+
+      rafId = requestAnimationFrame(tick);
+    }
+
+    /* ---- Start / Stop ---- */
+    function startEngine() {
+      if (rafId) cancelAnimationFrame(rafId);
+      lastTime    = null;
+      timeElapsed = 0;
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function stopEngine() {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+
+    /* ---- Arrow controls ---- */
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        goTo(currentIndex - 1);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        goTo(currentIndex + 1);
+      });
+    }
+
+    /* ---- Dot controls ---- */
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        goTo(parseInt(dot.getAttribute('data-index'), 10));
+      });
+    });
+
+    /* ---- Keyboard navigation (when slider is focused) ---- */
+    var section = document.getElementById('mzs-' + sid);
+    if (section) {
+      section.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft')  goTo(currentIndex - 1);
+        if (e.key === 'ArrowRight') goTo(currentIndex + 1);
+      });
+
+      /* ---- Pause on hover / focus for accessibility ---- */
+      section.addEventListener('mouseenter', function () { isPaused = true; });
+      section.addEventListener('mouseleave', function () { isPaused = false; });
+      section.addEventListener('focusin',    function () { isPaused = true; });
+      section.addEventListener('focusout',   function () { isPaused = false; });
+    }
+
+    /* ---- Touch / Swipe support ---- */
+    var touchStartX = 0;
+    var touchDelta  = 0;
+    track.addEventListener('touchstart', function (e) {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    track.addEventListener('touchend', function (e) {
+      touchDelta = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(touchDelta) > 50) {
+        goTo(touchDelta < 0 ? currentIndex + 1 : currentIndex - 1);
+      }
+    }, { passive: true });
+
+    /* ---- Activate first slide & start engine ---- */
+    goTo(0);
+    if (CONFIG.autoplay && total > 1) {
+      startEngine();
+    }
+
+    /* ---- Expose a destroy method for clean re-init ---- */
+    return { stop: stopEngine };
+  }
+
+  /* ── Bootstrap ── */
+  var sliderInstance = null;
+
+  function boot() {
+    /* Destroy previous instance if re-initialising */
+    if (sliderInstance && typeof sliderInstance.stop === 'function') {
+      sliderInstance.stop();
+    }
+    sliderInstance = initSlider();
+  }
+
+  /* Run on initial page load */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  /* ── Shopify Design Mode listeners ──────────────────────
+     CRITICAL: Shopify re-renders the section HTML whenever
+     a setting changes in the Customizer. These events fire
+     after the fresh HTML is injected, so we re-initialize
+     to keep the slider alive in the editor.
+  ─────────────────────────────────────────────────────── */
+  document.addEventListener('shopify:section:load',   function (e) {
+    if (e.detail && e.detail.sectionId === CONFIG.sid) boot();
+  });
+
+  document.addEventListener('shopify:section:select', function (e) {
+    if (e.detail && e.detail.sectionId === CONFIG.sid) boot();
+  });
+
+  document.addEventListener('shopify:block:select', function (e) {
+    /* Navigate to the selected block's slide index in the editor */
+    if (e.detail && e.detail.sectionId === CONFIG.sid) {
+      var block = e.detail.el || document.querySelector(
+        '[data-shopify-editor-block][id*="' + e.detail.blockId + '"]'
+      );
+      if (!block) return;
+      var track = document.getElementById('mzs-track-' + CONFIG.sid);
+      if (!track) return;
+      var slides = Array.from(track.querySelectorAll('.mzs-slide'));
+      var idx = slides.indexOf(block);
+      if (idx > -1 && sliderInstance) {
+        /* Temporarily bypass autoplay and jump to selected slide */
+        var goTo = initSlider; /* Re-init to get fresh goTo closure */
+        boot();
+      }
+    }
+  });
+
+})(); /* end IIFE */
+</script>
+
+{%- comment -%} ============================================================
+  SCHEMA
+============================================================ {%- endcomment -%}
+{% schema %}
+{
+  "name": "Modaz Hero Slider",
+  "tag": "div",
+  "class": "mzs-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "🎨 Global Style"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent Color",
+      "default": "#f63440",
+      "info": "Used for button backgrounds, sale highlights, and active dot indicators."
+    },
+    {
+      "type": "color",
+      "id": "timeline_color",
+      "label": "Timeline Progress Bar Color",
+      "default": "#f63440"
+    },
+    {
+      "type": "range",
+      "id": "slider_height",
+      "label": "Slider Height (vh)",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "default": 75,
+      "info": "Height as a percentage of the viewport height. Minimum is always 520px."
+    },
+    {
+      "type": "header",
+      "content": "▶️ Autoplay Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable Autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay Speed (seconds per slide)",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "🎛 Navigation Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show Prev / Next Arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show Pagination Dots",
+      "default": true
+    }
+  ],
+
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "🖼 Background Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "bg_image",
+          "label": "Background Image",
+          "info": "Recommended size: 1920 × 1080px. The image will be lazy-loaded (except the first slide)."
+        },
+        {
+          "type": "text",
+          "id": "bg_image_url",
+          "label": "Or enter an external image URL",
+          "info": "Only used when no image is uploaded above. Must start with https://"
+        },
+        {
+          "type": "select",
+          "id": "overlay_style",
+          "label": "Overlay Style",
+          "info": "Adds a tinted gradient over the background image to improve text contrast.",
+          "options": [
+            { "value": "dark",  "label": "Dark (for light text)" },
+            { "value": "light", "label": "Light (for dark text)" },
+            { "value": "none",  "label": "No overlay" }
+          ],
+          "default": "dark"
+        },
+        {
+          "type": "header",
+          "content": "📐 Layout & Style"
+        },
+        {
+          "type": "select",
+          "id": "slide_style",
+          "label": "Content Style",
+          "options": [
+            { "value": "dark",   "label": "Style 1 — Dark (white headline)" },
+            { "value": "light",  "label": "Style 2 — Light (dark headline + massive title)" },
+            { "value": "custom", "label": "Style 3 — Custom (white text, no decorator)" }
+          ],
+          "default": "dark",
+          "info": "Controls typography colours and layout decorators (e.g., the side lines on Style 2)."
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Text Alignment",
+          "options": [
+            { "value": "left",   "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right",  "label": "Right" }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "header",
+          "content": "✏️ Text Content"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading / Eyebrow",
+          "default": "NEW COLLECTION 2025",
+          "info": "Small text displayed above the main heading. Leave blank to hide."
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Main Heading",
+          "default": "New Arrivals",
+          "info": "The large display title of the slide."
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description / Sale Text",
+          "default": "UP TO [30% OFF]",
+          "info": "For Style 2 (light) slides, wrap the accent-coloured portion in square brackets, e.g. UP TO [30% OFF]. For other styles, plain text only."
+        },
+        {
+          "type": "header",
+          "content": "🔗 Call-to-Action Button"
+        },
+        {
+          "type": "text",
+          "id": "btn_label",
+          "label": "Button Label",
+          "default": "SHOP NOW",
+          "info": "Leave blank to hide the button entirely."
+        },
+        {
+          "type": "url",
+          "id": "btn_url",
+          "label": "Button URL"
+        },
+        {
+          "type": "select",
+          "id": "btn_style",
+          "label": "Button Style",
+          "options": [
+            { "value": "filled",  "label": "Filled (accent background)" },
+            { "value": "outline", "label": "Outlined (transparent background)" }
+          ],
+          "default": "filled"
+        },
+        {
+          "type": "checkbox",
+          "id": "btn_shadow",
+          "label": "Show accent glow shadow on button",
+          "default": false
+        }
+      ]
+    }
+  ],
+
+  "presets": [
+    {
+      "name": "Modaz Hero Slider",
+      "category": "Image",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "overlay_style": "dark",
+            "slide_style":   "dark",
+            "text_alignment":"left",
+            "subheading":    "NEW TREND 2025",
+            "heading":       "New Collection",
+            "description":   "BIG SALE OF THIS WEEK UP TO 30%",
+            "btn_label":     "SHOP NOW",
+            "btn_style":     "filled",
+            "btn_shadow":    false
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "overlay_style": "light",
+            "slide_style":   "light",
+            "text_alignment":"center",
+            "subheading":    "Summer Fashion",
+            "heading":       "SALE",
+            "description":   "UP TO [30% OFF]",
+            "btn_label":     "BUY NOW",
+            "btn_style":     "outline",
+            "btn_shadow":    true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

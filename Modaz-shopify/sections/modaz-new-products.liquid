@@ -1,0 +1,1003 @@
+{%- comment -%}
+  Section : Modaz — New Product Grid
+  File    : sections/modaz-new-products.liquid
+
+  Architecture
+  ────────────
+  • Section settings  → section heading, underline colour, columns, padding
+  • Blocks (type: product_card) → one block = one product card
+    Each block holds: product picker, badge label/colour, wishlist toggle
+  • Per-card Liquid   → reads real Shopify product object for title, price,
+                        compare_at_price, featured_image, variants, inventory
+  • AJAX Add-to-Cart  → posts to /cart/add via fetch(); isolated per card
+  • Variant swatches  → built from product.options_with_values (option named
+                        "Color" or "Colour"); falls back to first option
+  • JS scoped to      → #mznp-{{ section.id }} so multiple instances are safe
+{%- endcomment -%}
+
+{%- liquid
+  assign sec = section.settings
+  assign sid = section.id
+-%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+{%- comment -%}══════════════════════════════════════════════════════════════
+  SCOPED CSS
+  Prefix: .mznp-  (Modaz New Products)
+  Wrapper: #mznp-{{ sid }}
+  → Zero collision with Dawn or any other section
+══════════════════════════════════════════════════════════════{%- endcomment -%}
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  #mznp-{{ sid }} {
+    --mznp-accent:      {{ sec.accent_color }};
+    --mznp-accent-dark: {{ sec.accent_hover_color }};
+    --mznp-white:       #ffffff;
+    --mznp-primary:     #222222;
+    --mznp-muted:       #888888;
+    --mznp-border:      #eaeaea;
+    --mznp-badge-new:   {{ sec.badge_new_color }};
+    --mznp-badge-sale:  {{ sec.badge_sale_color }};
+    --mznp-font:        'Poppins', sans-serif;
+    --mznp-pad:         {{ sec.section_padding }}px;
+    --mznp-img-h:       {{ sec.image_height }}px;
+  }
+
+  /* ── RESETS ─────────────────────────────────────────────── */
+  #mznp-{{ sid }} *, #mznp-{{ sid }} *::before, #mznp-{{ sid }} *::after {
+    box-sizing: border-box; margin: 0; padding: 0;
+  }
+  #mznp-{{ sid }} a         { text-decoration: none; color: inherit; }
+  #mznp-{{ sid }} button    { font-family: var(--mznp-font); }
+  #mznp-{{ sid }} ul        { list-style: none; }
+
+  /* ── SECTION WRAPPER ─────────────────────────────────────── */
+  #mznp-{{ sid }} {
+    padding: var(--mznp-pad) 0;
+    background-color: var(--mznp-white);
+    font-family: var(--mznp-font);
+    width: 100%;
+  }
+
+  /* ── WIDE CONTAINER ──────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 70px;
+    width: 100%;
+  }
+
+  /* ── SECTION TITLE ───────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-title-wrapper {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  #mznp-{{ sid }} .mznp-title-wrapper h2 {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--mznp-primary);
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+  }
+  #mznp-{{ sid }} .mznp-title-underline {
+    width: 60px;
+    height: 3px;
+    background-color: var(--mznp-accent);
+    margin: 0 auto;
+  }
+
+  /* ── PRODUCT GRID ─────────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-grid {
+    display: grid;
+    grid-template-columns: repeat({{ sec.columns }}, 1fr);
+    border-left: 1px solid var(--mznp-border);
+    position: relative;
+  }
+
+  /* ── PRODUCT CARD ─────────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-card {
+    position: relative;
+    background-color: var(--mznp-white);
+    padding: 30px 25px 45px 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    border-right: 1px solid var(--mznp-border);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                border-color 0.2s ease;
+    z-index: 1;
+    overflow: hidden;
+  }
+  #mznp-{{ sid }} .mznp-card:hover {
+    z-index: 10;
+    border-color: transparent;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.14);
+    transform: translateY(-5px);
+  }
+
+  /* ── CARD TOP ROW (badge + wishlist) ─────────────────────── */
+  #mznp-{{ sid }} .mznp-card-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    height: 30px;
+    flex-shrink: 0;
+  }
+
+  /* ── BADGES ──────────────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mznp-white);
+    padding: 4px 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
+  #mznp-{{ sid }} .mznp-badge-new  { background-color: var(--mznp-badge-new);  }
+  #mznp-{{ sid }} .mznp-badge-sale { background-color: var(--mznp-badge-sale); }
+
+  /* ── WISHLIST BUTTON ─────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-wishlist-btn {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: var(--mznp-muted);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    padding: 0;
+    line-height: 1;
+  }
+  #mznp-{{ sid }} .mznp-wishlist-btn:hover  { color: var(--mznp-accent); }
+  #mznp-{{ sid }} .mznp-wishlist-btn:focus-visible {
+    outline: 2px solid var(--mznp-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  #mznp-{{ sid }} .mznp-card:hover .mznp-wishlist-btn {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  /* Keep wished products' heart filled */
+  #mznp-{{ sid }} .mznp-wishlist-btn.mznp-wished { color: var(--mznp-accent); opacity: 1; transform: translateX(0); }
+  #mznp-{{ sid }} .mznp-wishlist-btn.mznp-wished i { font-weight: 900; }
+
+  /* ── PRODUCT IMAGE BOX ───────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-img-box {
+    width: 100%;
+    height: var(--mznp-img-h);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-shrink: 0;
+  }
+  #mznp-{{ sid }} .mznp-img-box img {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+    display: block;
+  }
+  #mznp-{{ sid }} .mznp-card:hover .mznp-img-box img {
+    transform: scale(1.05);
+  }
+
+  /* ── PRODUCT INFO ─────────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-info {
+    width: 100%;
+    margin-bottom: 15px;
+    flex-grow: 1;
+  }
+  #mznp-{{ sid }} .mznp-product-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--mznp-primary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  #mznp-{{ sid }} .mznp-product-title a:hover { color: var(--mznp-accent); }
+
+  /* ── PRICE ───────────────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-price-wrap {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--mznp-accent);
+    margin-bottom: 18px;
+  }
+  #mznp-{{ sid }} .mznp-price-compare {
+    color: #b5b5b5;
+    text-decoration: line-through;
+    font-weight: 400;
+    margin-right: 8px;
+    font-size: 14px;
+  }
+  #mznp-{{ sid }} .mznp-price-sale { color: var(--mznp-accent); }
+
+  /* ── COLOR SWATCHES ──────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-swatches {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #mznp-{{ sid }} .mznp-swatch {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    border: none;
+    padding: 0;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  #mznp-{{ sid }} .mznp-swatch:hover   { transform: scale(1.2); }
+  #mznp-{{ sid }} .mznp-swatch:focus-visible {
+    outline: 2px solid var(--mznp-accent);
+    outline-offset: 3px;
+    border-radius: 50%;
+  }
+  /* Active ring — exact match to original */
+  #mznp-{{ sid }} .mznp-swatch.mznp-active::after {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    border: 1px solid #888888;
+    border-radius: 50%;
+  }
+
+  /* ── ADD TO CART BUTTON ──────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-atc-btn {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--mznp-accent);
+    color: var(--mznp-white);
+    border: none;
+    padding: 16px 0;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    text-align: center;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease;
+    font-family: var(--mznp-font);
+  }
+  #mznp-{{ sid }} .mznp-atc-btn:hover:not(:disabled)  { background-color: var(--mznp-accent-dark); }
+  #mznp-{{ sid }} .mznp-card:hover .mznp-atc-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Sold out state */
+  #mznp-{{ sid }} .mznp-atc-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    letter-spacing: 1px;
+  }
+  /* Loading spinner state */
+  #mznp-{{ sid }} .mznp-atc-btn.mznp-loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  /* ── FEEDBACK TOAST ──────────────────────────────────────── */
+  #mznp-{{ sid }} .mznp-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--mznp-primary);
+    color: var(--mznp-white);
+    padding: 14px 24px;
+    font-family: var(--mznp-font);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+  #mznp-{{ sid }} .mznp-toast.mznp-toast-show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────── */
+  @media (max-width: 1199px) {
+    #mznp-{{ sid }} .mznp-img-box { height: 230px; }
+    #mznp-{{ sid }} .mznp-container { padding: 0 30px; }
+  }
+  @media (max-width: 991px) {
+    #mznp-{{ sid }} .mznp-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 580px) {
+    #mznp-{{ sid }} .mznp-grid { grid-template-columns: 1fr; }
+    #mznp-{{ sid }} .mznp-container { padding: 0 16px; }
+    #mznp-{{ sid }} .mznp-atc-btn {
+      position: static;
+      opacity: 1;
+      transform: none;
+      margin-top: 12px;
+      width: 100%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #mznp-{{ sid }} .mznp-card,
+    #mznp-{{ sid }} .mznp-img-box img,
+    #mznp-{{ sid }} .mznp-atc-btn,
+    #mznp-{{ sid }} .mznp-wishlist-btn { transition: none !important; }
+    #mznp-{{ sid }} .mznp-atc-btn { opacity: 1; transform: none; }
+  }
+</style>
+
+{%- comment -%}══════════════════════════════════════════════════════════════
+  HTML MARKUP
+══════════════════════════════════════════════════════════════{%- endcomment -%}
+<section id="mznp-{{ sid }}" aria-label="{{ sec.section_heading | escape }}">
+  <div class="mznp-container">
+
+    {%- comment -%} ── SECTION HEADING ── {%- endcomment -%}
+    {% if sec.section_heading != blank %}
+      <div class="mznp-title-wrapper">
+        <h2>{{ sec.section_heading | escape }}</h2>
+        <div class="mznp-title-underline"></div>
+      </div>
+    {% endif %}
+
+    {%- comment -%} ── PRODUCT GRID ── {%- endcomment -%}
+    <div class="mznp-grid" id="mznp-grid-{{ sid }}">
+
+      {%- comment -%}
+        Each block = one product card.
+        The merchant picks a product in the customizer per block.
+        We read Shopify's real product object via all_products[].
+      {%- endcomment -%}
+
+      {% for block in section.blocks %}
+        {%- liquid
+          assign bs      = block.settings
+          assign product = all_products[bs.product]
+
+          comment
+            Determine active variant — first available, or just first
+          endcomment
+          assign active_variant = product.first_available_variant
+          if active_variant == nil
+            assign active_variant = product.variants.first
+          endif
+
+          comment
+            Badge logic
+          endcomment
+          assign badge_label = bs.badge_label
+          assign badge_type  = bs.badge_type
+
+          comment
+            Sale detection — true if ANY variant has compare_at_price > price
+          endcomment
+          assign is_on_sale = false
+          for v in product.variants
+            if v.compare_at_price > v.price
+              assign is_on_sale = true
+              break
+            endif
+          endfor
+
+          comment
+            Sold-out detection
+          endcomment
+          assign is_sold_out = true
+          for v in product.variants
+            if v.available
+              assign is_sold_out = false
+              break
+            endif
+          endfor
+
+          comment
+            Find a "Color" or "Colour" option index
+          endcomment
+          assign color_option_index = nil
+          for opt in product.options
+            assign opt_down = opt | downcase
+            if opt_down == 'color' or opt_down == 'colour'
+              assign color_option_index = forloop.index0
+              break
+            endif
+          endfor
+          if color_option_index == nil
+            assign color_option_index = 0
+          endif
+        -%}
+
+        {% if product != nil %}
+          {%- comment -%}
+            Serialize the full variant data to JSON for the JS engine.
+            This lets the swatch JS know the price, image and availability
+            of every variant without extra AJAX calls.
+          {%- endcomment -%}
+          {%- assign variants_json = '[]' -%}
+          {%- capture variants_json -%}
+            [{% for v in product.variants %}{
+              "id":{{ v.id }},
+              "available":{{ v.available }},
+              "price":{{ v.price }},
+              "compare_at_price":{{ v.compare_at_price | default: 0 }},
+              "price_formatted":{{ v.price | money | json }},
+              "compare_at_price_formatted":{{ v.compare_at_price | money | json }},
+              "option1":{{ v.option1 | json }},
+              "option2":{{ v.option2 | json }},
+              "option3":{{ v.option3 | json }},
+              "featured_image":{{ v.featured_image.src | default: product.featured_image.src | image_url: width: 600 | json }}
+            }{% unless forloop.last %},{% endunless %}{% endfor %}]
+          {%- endcapture -%}
+
+          <div
+            class="mznp-card"
+            id="mznp-card-{{ sid }}-{{ forloop.index0 }}"
+            data-product-id="{{ product.id }}"
+            data-variants="{{ variants_json | escape }}"
+            data-color-index="{{ color_option_index }}"
+            data-active-variant="{{ active_variant.id }}"
+            {{ block.shopify_attributes }}
+          >
+
+            {%- comment -%} ── TOP ROW: badge + wishlist ── {%- endcomment -%}
+            <div class="mznp-card-top">
+              {% if badge_label != blank %}
+                <span class="mznp-badge mznp-badge-{{ badge_type }}">{{ badge_label | escape }}</span>
+              {% elsif is_on_sale %}
+                <span class="mznp-badge mznp-badge-sale">Sale</span>
+              {% else %}
+                <span></span>
+              {% endif %}
+
+              {% if bs.show_wishlist %}
+                <button
+                  class="mznp-wishlist-btn"
+                  aria-label="Add {{ product.title | escape }} to wishlist"
+                  data-product-id="{{ product.id }}"
+                >
+                  <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                </button>
+              {% endif %}
+            </div>
+
+            {%- comment -%} ── PRODUCT IMAGE ── {%- endcomment -%}
+            <a href="{{ product.url }}" class="mznp-img-box" tabindex="-1" aria-hidden="true">
+              {% if product.featured_image != blank %}
+                <img
+                  id="mznp-img-{{ sid }}-{{ forloop.index0 }}"
+                  src="{{ product.featured_image | image_url: width: 600 }}"
+                  alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                  width="{{ product.featured_image.width }}"
+                  height="{{ product.featured_image.height }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                >
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'mznp-placeholder-img' }}
+              {% endif %}
+            </a>
+
+            {%- comment -%} ── PRODUCT INFO ── {%- endcomment -%}
+            <div class="mznp-info">
+
+              {%- comment -%} TITLE {%- endcomment -%}
+              <h3 class="mznp-product-title">
+                <a href="{{ product.url }}">{{ product.title }}</a>
+              </h3>
+
+              {%- comment -%} PRICE {%- endcomment -%}
+              <div class="mznp-price-wrap" id="mznp-price-{{ sid }}-{{ forloop.index0 }}">
+                {% if active_variant.compare_at_price > active_variant.price %}
+                  <span class="mznp-price-compare">{{ active_variant.compare_at_price | money }}</span>
+                  <span class="mznp-price-sale">{{ active_variant.price | money }}</span>
+                {% else %}
+                  {{ active_variant.price | money }}
+                {% endif %}
+              </div>
+
+              {%- comment -%} ── COLOR / OPTION SWATCHES ──
+                We build one swatch per unique value of the designated option.
+                Each swatch maps to a hex colour via a CSS variable.
+                Values that don't match a known colour still get a text
+                representation (first 2 chars) so no swatch is invisible.
+              {%- endcomment -%}
+              <div class="mznp-swatches" id="mznp-swatches-{{ sid }}-{{ forloop.index0 }}">
+                {%- assign seen_values = '' -%}
+                {%- for variant in product.variants -%}
+                  {%- liquid
+                    case color_option_index
+                      when 0
+                        assign opt_val = variant.option1
+                      when 1
+                        assign opt_val = variant.option2
+                      else
+                        assign opt_val = variant.option3
+                    endcase
+                    assign opt_key = opt_val | handleize
+                  -%}
+                  {%- unless seen_values contains opt_key -%}
+                    {%- assign seen_values = seen_values | append: opt_key | append: ',' -%}
+                    {%- comment -%}
+                      Map common colour names to hex.
+                      Unknown colours get a neutral grey; label shown via aria-label.
+                    {%- endcomment -%}
+                    {%- liquid
+                      case opt_key
+                        when 'red'        | 'rouge'
+                          assign swatch_hex = '#e62a2a'
+                        when 'green'      | 'vert'
+                          assign swatch_hex = '#7bc779'
+                        when 'black'      | 'noir'
+                          assign swatch_hex = '#111111'
+                        when 'white'      | 'blanc'
+                          assign swatch_hex = '#ffffff'
+                        when 'blue'       | 'bleu'
+                          assign swatch_hex = '#3a7bd5'
+                        when 'navy'
+                          assign swatch_hex = '#001f5b'
+                        when 'grey'       | 'gray' | 'gris'
+                          assign swatch_hex = '#888888'
+                        when 'beige'      | 'cream'
+                          assign swatch_hex = '#f5f0e8'
+                        when 'pink'       | 'rose'
+                          assign swatch_hex = '#f78fb3'
+                        when 'yellow'     | 'jaune'
+                          assign swatch_hex = '#f9ca24'
+                        when 'orange'
+                          assign swatch_hex = '#f0932b'
+                        when 'purple'     | 'violet'
+                          assign swatch_hex = '#6c3483'
+                        when 'brown'      | 'marron'
+                          assign swatch_hex = '#7d5a50'
+                        else
+                          assign swatch_hex = '#cccccc'
+                      endcase
+                    -%}
+                    <button
+                      class="mznp-swatch{% if variant.id == active_variant.id %} mznp-active{% endif %}"
+                      style="background-color: {{ swatch_hex }}; {% if opt_key == 'white' %}border: 1px solid #ddd;{% endif %}"
+                      data-value="{{ opt_val | escape }}"
+                      data-card-id="{{ forloop.parentloop.index0 }}"
+                      aria-label="{{ opt_val | escape }}"
+                      aria-pressed="{% if variant.id == active_variant.id %}true{% else %}false{% endif %}"
+                      title="{{ opt_val | escape }}"
+                    ></button>
+                  {%- endunless -%}
+                {%- endfor -%}
+              </div>
+
+            </div>{%- comment -%} /mznp-info {%- endcomment -%}
+
+            {%- comment -%} ── ADD TO CART FORM + BUTTON ──
+              • name="id" holds the selected variant ID (updated by JS on swatch click)
+              • Form posts to /cart/add via JS (AJAX); falls back to native submit
+              • Button is disabled + labelled "Sold Out" when unavailable
+            {%- endcomment -%}
+            <form
+              method="post"
+              action="/cart/add"
+              class="mznp-atc-form"
+              id="mznp-form-{{ sid }}-{{ forloop.index0 }}"
+            >
+              <input type="hidden" name="id"       value="{{ active_variant.id }}" id="mznp-variant-{{ sid }}-{{ forloop.index0 }}">
+              <input type="hidden" name="quantity"  value="1">
+              <input type="hidden" name="return_to" value="back">
+
+              <button
+                type="submit"
+                class="mznp-atc-btn"
+                id="mznp-atc-{{ sid }}-{{ forloop.index0 }}"
+                {% if is_sold_out %}disabled aria-disabled="true"{% endif %}
+                aria-label="{% if is_sold_out %}Sold out — {% endif %}{{ product.title | escape }}"
+              >
+                {% if is_sold_out %}SOLD OUT{% else %}ADD TO CART{% endif %}
+              </button>
+            </form>
+
+          </div>{%- comment -%} /mznp-card {%- endcomment -%}
+
+        {% else %}
+          {%- comment -%} EMPTY CARD — shown only in the editor when no product is chosen {%- endcomment -%}
+          <div class="mznp-card" {{ block.shopify_attributes }}>
+            <div class="mznp-card-top"><span></span></div>
+            <div class="mznp-img-box">
+              {{ 'product-1' | placeholder_svg_tag }}
+            </div>
+            <div class="mznp-info">
+              <h3 class="mznp-product-title">Select a product</h3>
+              <div class="mznp-price-wrap">$0.00</div>
+            </div>
+          </div>
+        {% endif %}
+
+      {% endfor %}
+
+    </div>{%- comment -%} /mznp-grid {%- endcomment -%}
+  </div>
+
+  {%- comment -%} ── TOAST NOTIFICATION (AJAX cart feedback) ── {%- endcomment -%}
+  <div class="mznp-toast" id="mznp-toast-{{ sid }}" role="status" aria-live="polite"></div>
+
+</section>
+
+{%- comment -%}══════════════════════════════════════════════════════════════
+  JAVASCRIPT
+  Scoped IIFE — keyed to section.id.
+  Responsibilities:
+    1. Swatch click → update active state, variant input, price display, image
+    2. AJAX Add-to-Cart → fetch /cart/add, show toast, update cart count
+    3. Wishlist toggle → heart icon fill (visual only; connect to wishlist app if needed)
+    4. Shopify editor re-init events
+══════════════════════════════════════════════════════════════{%- endcomment -%}
+<script>
+(function () {
+  'use strict';
+
+  var SID = {{ sid | json }};
+
+  /* ── Helpers ── */
+  function $id(id)  { return document.getElementById(id); }
+  function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+  function $$(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
+
+  /* ── Main init — safe to call multiple times ── */
+  function init() {
+    var section = $id('mznp-' + SID);
+    if (!section) return;
+
+    var cards = $$('.mznp-card', section);
+
+    cards.forEach(function (card, cardIdx) {
+      var variantsRaw = card.getAttribute('data-variants');
+      if (!variantsRaw) return;
+
+      var variants      = [];
+      var colorIndex    = parseInt(card.getAttribute('data-color-index') || '0', 10);
+      var activeVariant = parseInt(card.getAttribute('data-active-variant') || '0', 10);
+
+      try { variants = JSON.parse(variantsRaw); } catch(e) { return; }
+
+      var swatchContainer = $id('mznp-swatches-' + SID + '-' + cardIdx);
+      var variantInput    = $id('mznp-variant-'  + SID + '-' + cardIdx);
+      var priceEl         = $id('mznp-price-'    + SID + '-' + cardIdx);
+      var imgEl           = $id('mznp-img-'      + SID + '-' + cardIdx);
+      var atcBtn          = $id('mznp-atc-'      + SID + '-' + cardIdx);
+      var form            = $id('mznp-form-'     + SID + '-' + cardIdx);
+      var toast           = $id('mznp-toast-'    + SID);
+
+      /* ── Find variant by selected options ── */
+      function findVariant(selectedValue) {
+        return variants.find(function (v) {
+          var optionVal = colorIndex === 0 ? v.option1
+                        : colorIndex === 1 ? v.option2
+                        : v.option3;
+          return optionVal === selectedValue;
+        }) || variants[0];
+      }
+
+      /* ── Update price display ── */
+      function updatePrice(variant) {
+        if (!priceEl) return;
+        if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+          priceEl.innerHTML =
+            '<span class="mznp-price-compare">' + (variant.compare_at_price_formatted || '') + '</span>' +
+            '<span class="mznp-price-sale">'    + (variant.price_formatted || '')              + '</span>';
+        } else {
+          priceEl.textContent = variant.price_formatted || '';
+        }
+      }
+
+      /* ── Update image ── */
+      function updateImage(variant) {
+        if (!imgEl || !variant.featured_image) return;
+        imgEl.src = variant.featured_image;
+        imgEl.alt = variant.option1 || '';
+      }
+
+      /* ── Update ATC button ── */
+      function updateButton(variant) {
+        if (!atcBtn) return;
+        if (variant.available) {
+          atcBtn.disabled        = false;
+          atcBtn.textContent     = 'ADD TO CART';
+          atcBtn.removeAttribute('aria-disabled');
+        } else {
+          atcBtn.disabled        = true;
+          atcBtn.textContent     = 'SOLD OUT';
+          atcBtn.setAttribute('aria-disabled', 'true');
+        }
+      }
+
+      /* ── Swatch click handler ── */
+      if (swatchContainer) {
+        $$('.mznp-swatch', swatchContainer).forEach(function (swatch) {
+          swatch.addEventListener('click', function () {
+            /* Deactivate all swatches in this card */
+            $$('.mznp-swatch', swatchContainer).forEach(function (s) {
+              s.classList.remove('mznp-active');
+              s.setAttribute('aria-pressed', 'false');
+            });
+            swatch.classList.add('mznp-active');
+            swatch.setAttribute('aria-pressed', 'true');
+
+            var selectedVal = swatch.getAttribute('data-value');
+            var variant     = findVariant(selectedVal);
+
+            if (variant && variantInput) {
+              variantInput.value = variant.id;
+              updatePrice(variant);
+              updateImage(variant);
+              updateButton(variant);
+            }
+          });
+        });
+      }
+
+      /* ── AJAX Add-to-Cart ── */
+      if (form && atcBtn) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (atcBtn.disabled) return;
+
+          var variantId = variantInput ? variantInput.value : null;
+          if (!variantId) return;
+
+          atcBtn.classList.add('mznp-loading');
+          atcBtn.textContent = 'ADDING…';
+
+          fetch('/cart/add.js', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body:    JSON.stringify({ id: parseInt(variantId, 10), quantity: 1 })
+          })
+          .then(function (res) {
+            if (!res.ok) throw new Error('Cart error ' + res.status);
+            return res.json();
+          })
+          .then(function (data) {
+            atcBtn.classList.remove('mznp-loading');
+            atcBtn.textContent = 'ADDED ✓';
+            setTimeout(function () { atcBtn.textContent = 'ADD TO CART'; }, 1800);
+
+            /* Update cart count bubble (works with Dawn & most themes) */
+            document.dispatchEvent(new CustomEvent('cart:updated', {
+              bubbles: true,
+              detail:  { itemCount: data.quantity }
+            }));
+
+            /* Re-fetch full cart to update header count */
+            fetch('/cart.js')
+              .then(function (r) { return r.json(); })
+              .then(function (cart) {
+                var countEls = document.querySelectorAll('[data-cart-count], .cart-count, #CartCount, .header__cart-count');
+                countEls.forEach(function (el) { el.textContent = cart.item_count; });
+              });
+
+            showToast(data.title + ' added to cart');
+          })
+          .catch(function (err) {
+            console.error('[Modaz ATC]', err);
+            atcBtn.classList.remove('mznp-loading');
+            atcBtn.textContent = 'ADD TO CART';
+            showToast('Could not add to cart. Please try again.');
+          });
+        });
+      }
+
+      /* ── Wishlist toggle (visual) ── */
+      var wishBtn = $('.mznp-wishlist-btn', card);
+      if (wishBtn) {
+        wishBtn.addEventListener('click', function () {
+          var icon = wishBtn.querySelector('i');
+          var wished = wishBtn.classList.toggle('mznp-wished');
+          if (icon) {
+            icon.classList.toggle('fa-regular', !wished);
+            icon.classList.toggle('fa-solid',   wished);
+          }
+          wishBtn.setAttribute('aria-label',
+            wished
+              ? 'Remove from wishlist'
+              : 'Add to wishlist'
+          );
+        });
+      }
+
+    }); /* end cards.forEach */
+
+    /* ── Toast helper ── */
+    function showToast(message) {
+      var toast = $id('mznp-toast-' + SID);
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('mznp-toast-show');
+      setTimeout(function () { toast.classList.remove('mznp-toast-show'); }, 3000);
+    }
+  } /* end init() */
+
+  /* ── Bootstrap ── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  /* ── Shopify Design Mode events ── */
+  document.addEventListener('shopify:section:load',   function (e) {
+    if (e.detail && e.detail.sectionId === SID) init();
+  });
+  document.addEventListener('shopify:section:select', function (e) {
+    if (e.detail && e.detail.sectionId === SID) init();
+  });
+  document.addEventListener('shopify:block:select',   function (e) {
+    if (e.detail && e.detail.sectionId !== SID) return;
+    var cardEl = document.querySelector('[data-shopify-editor-block]');
+    if (cardEl) cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+}());
+</script>
+
+{%- comment -%}══════════════════════════════════════════════════════════════
+  SCHEMA
+══════════════════════════════════════════════════════════════{%- endcomment -%}
+{% schema %}
+{
+  "name": "Modaz New Products",
+  "tag": "div",
+  "class": "mznp-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "📝 Section Heading"
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "New Product"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Colors"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent Color",
+      "default": "#f63440",
+      "info": "Used for price, ATC button, and title underline."
+    },
+    {
+      "type": "color",
+      "id": "accent_hover_color",
+      "label": "Accent Hover / Darker Accent",
+      "default": "#d6222d",
+      "info": "ATC button hover state color."
+    },
+    {
+      "type": "color",
+      "id": "badge_new_color",
+      "label": "'New' Badge Color",
+      "default": "#7bc779"
+    },
+    {
+      "type": "color",
+      "id": "badge_sale_color",
+      "label": "'Sale' Badge Color",
+      "default": "#f63440"
+    },
+    {
+      "type": "header",
+      "content": "📐 Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns (Desktop)",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Section Top & Bottom Padding (px)",
+      "min": 20,
+      "max": 160,
+      "step": 10,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Product Image Box Height (px)",
+      "min": 160,
+      "max": 500,
+      "step": 20,
+      "default": 280
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "settings": [
+        {
+          "type": "header",
+          "content": "🛍 Product"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product",
+          "info": "The section reads the real title, price, images, and variants from this product automatically."
+        },
+        {
+          "type": "header",
+          "content": "🏷 Badge"
+        },
+        {
+          "type": "text",
+          "id": "badge_label",
+          "label": "Badge Label",
+          "info": "e.g. 'New', 'Sale', 'Hot'. Leave blank to auto-detect 'Sale' from compare-at price.",
+          "default": "New"
+        },
+        {
+          "type": "select",
+          "id": "badge_type",
+          "label": "Badge Color",
+          "options": [
+            { "value": "new",  "label": "Green (New)"   },
+            { "value": "sale", "label": "Red (Sale)"    }
+          ],
+          "default": "new"
+        },
+        {
+          "type": "header",
+          "content": "❤️ Wishlist"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_wishlist",
+          "label": "Show Wishlist Button",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modaz New Products",
+      "category": "Products",
+      "blocks": [
+        { "type": "product_card", "settings": { "badge_label": "New",  "badge_type": "new",  "show_wishlist": true } },
+        { "type": "product_card", "settings": { "badge_label": "New",  "badge_type": "new",  "show_wishlist": true } },
+        { "type": "product_card", "settings": { "badge_label": "Sale", "badge_type": "sale", "show_wishlist": true } },
+        { "type": "product_card", "settings": { "badge_label": "Sale", "badge_type": "sale", "show_wishlist": true } }
+      ]
+    }
+  ]
+}
+{% endschema %}

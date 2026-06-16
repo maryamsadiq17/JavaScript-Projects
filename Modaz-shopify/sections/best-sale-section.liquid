@@ -1,0 +1,417 @@
+{% comment %}
+  ============================================================
+  Section: Best Sale Section
+  File:    sections/best-sale-section.liquid
+  ============================================================
+{% endcomment %}
+
+<style>
+  /* ==========================================================================
+     7. TABBED PRODUCT GRID SECTION
+     ========================================================================== */
+  #shopify-section-{{ section.id }} .best-sale-section {
+      padding: 80px 0;
+      background-color: var(--white);
+  }
+
+  /* --- Filter Navigation Tabs Row --- */
+  #shopify-section-{{ section.id }} .filter-tab-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 50px;
+  }
+
+  #shopify-section-{{ section.id }} .tab-btn {
+      background-color: var(--white);
+      color: #666666;
+      border: 1px solid #eaeaea;
+      padding: 12px 28px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0 -0.5px;
+  }
+
+  #shopify-section-{{ section.id }} .tab-btn:hover {
+      color: var(--accent-color);
+  }
+
+  /* Focused Highlight Tab State */
+  #shopify-section-{{ section.id }} .tab-btn.active {
+      background-color: var(--accent-color);
+      color: var(--white) !important;
+      border-color: var(--accent-color);
+  }
+
+  /* --- Loop-Hole Prevention Framework Rules --- */
+  #shopify-section-{{ section.id }} .dynamic-filter-grid {
+      border-bottom: none;
+  }
+
+  /* Utility visibility classes targeted by JavaScript engines */
+  #shopify-section-{{ section.id }} .filter-item {
+      display: flex !important;
+      animation: fadeInGrid-{{ section.id }} 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  #shopify-section-{{ section.id }} .filter-item.hide {
+      display: none !important;
+  }
+
+  #shopify-section-{{ section.id }} .opacity-0 {
+      opacity: 0;
+      pointer-events: none;
+  }
+
+  /* Crisp grid entry animation for card switches */
+  @keyframes fadeInGrid-{{ section.id }} {
+      0% {
+          opacity: 0;
+          transform: translateY(10px);
+      }
+      100% {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  }
+
+  /* --- Mobile Tab Adjustments --- */
+  @media (max-width: 767px) {
+      #shopify-section-{{ section.id }} .filter-tab-bar {
+          flex-wrap: wrap;
+          gap: 10px;
+      }
+      #shopify-section-{{ section.id }} .tab-btn {
+          margin: 0;
+          border-radius: 2px;
+          padding: 10px 20px;
+          font-size: 12px;
+      }
+  }
+</style>
+
+<section class="best-sale-section">
+  <div class="container container-wide">
+
+    <div class="section-title-wrapper">
+      {% if section.settings.section_title != blank %}
+        <h2>{{ section.settings.section_title | escape }}</h2>
+      {% endif %}
+      <div class="title-underline"></div>
+    </div>
+
+    <div class="filter-tab-bar" id="filter-tab-bar-{{ section.id }}">
+      <button class="tab-btn active" data-filter="all">All Product</button>
+      <button class="tab-btn" data-filter="kids">For Kid's</button>
+      <button class="tab-btn" data-filter="men">For Man's</button>
+      <button class="tab-btn" data-filter="women">For Woman's</button>
+      <button class="tab-btn" data-filter="accessories">Accessories</button>
+    </div>
+
+    <div class="products-grid dynamic-filter-grid" id="filter-grid-{{ section.id }}">
+
+      {% for block in section.blocks %}
+        {% if block.type == 'sale_item' %}
+
+          {%- liquid
+            assign badge_text = block.settings.badge_text
+            assign badge_style = block.settings.badge_style
+            assign item_title = block.settings.item_title
+            assign item_price = block.settings.item_price
+            assign item_price_old = block.settings.item_price_old
+            assign item_category = block.settings.item_category
+            assign item_image = block.settings.item_image
+            assign item_url = block.settings.item_url | default: '#'
+          -%}
+
+          <div
+            class="product-card filter-item{% if badge_text == blank %} {% endif %}"
+            data-category="{{ item_category | escape }}"
+            {{ block.shopify_attributes }}
+          >
+            <div class="card-top-actions">
+              {% if badge_text != blank %}
+                <span class="product-badge {{ badge_style | escape }}">{{ badge_text | escape }}</span>
+              {% else %}
+                <span class="product-badge opacity-0"></span>
+              {% endif %}
+              <button class="wishlist-btn" aria-label="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+            </div>
+
+            <div class="product-img-box">
+              {% if item_image != blank %}
+                <a href="{{ item_url }}">
+                  <img
+                    src="{{ item_image | image_url: width: 500 }}"
+                    alt="{{ item_title | escape }}"
+                    loading="lazy"
+                    width="500"
+                    height="{{ 500 | divided_by: item_image.aspect_ratio | round }}"
+                  >
+                </a>
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {% endif %}
+            </div>
+
+            <div class="product-info">
+              {% if item_title != blank %}
+                <h3 class="product-title">{{ item_title }}</h3>
+              {% endif %}
+
+              <p class="product-price">
+                {% if item_price_old != blank %}
+                  <span class="price-old">{{ item_price_old | escape }}</span>
+                  <span class="price-sale">{{ item_price | escape }}</span>
+                {% elsif item_price != blank %}
+                  {{ item_price | escape }}
+                {% endif %}
+              </p>
+
+              <div class="color-swatches">
+                <span class="swatch swatch-red active"></span>
+                <span class="swatch swatch-green"></span>
+                <span class="swatch swatch-black"></span>
+              </div>
+            </div>
+
+            <button class="btn-add-to-cart">ADD TO CART</button>
+          </div>
+
+        {% endif %}
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+
+<script>
+  // ==========================================================================
+  // 8. DYNAMIC PRODUCT GRID FILTER CONTROLLER — instance: {{ section.id }}
+  // ==========================================================================
+  (function () {
+    document.addEventListener("DOMContentLoaded", () => {
+      const tabBar = document.getElementById("filter-tab-bar-{{ section.id }}");
+      const grid   = document.getElementById("filter-grid-{{ section.id }}");
+
+      if (!tabBar || !grid) return;
+
+      const tabButtons = tabBar.querySelectorAll(".tab-btn");
+      const filterItems = grid.querySelectorAll(".filter-item");
+
+      tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          // 1. Remove active highlights across all button modules
+          tabButtons.forEach(btn => btn.classList.remove("active"));
+
+          // 2. Lock active highlight onto current clicked button block
+          button.classList.add("active");
+
+          // 3. Extract targeting category variable profile
+          const targetFilter = button.getAttribute("data-filter");
+
+          // 4. Loop grid arrays to isolate item matches
+          filterItems.forEach(item => {
+            const itemCategory = item.getAttribute("data-category");
+
+            if (targetFilter === "all" || targetFilter === itemCategory) {
+              item.classList.remove("hide");
+            } else {
+              item.classList.add("hide");
+            }
+          });
+        });
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Best Sale Section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Best Sale"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "sale_item",
+      "name": "Sale Item",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Product Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "item_image",
+          "label": "Product Image"
+        },
+        {
+          "type": "header",
+          "content": "Badge"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Badge Text",
+          "info": "e.g. New, Sale, Hot. Leave blank to hide the badge."
+        },
+        {
+          "type": "select",
+          "id": "badge_style",
+          "label": "Badge Color",
+          "options": [
+            { "value": "badge-green", "label": "Green (New)" },
+            { "value": "badge-red",   "label": "Red (Sale)"  }
+          ],
+          "default": "badge-green"
+        },
+        {
+          "type": "header",
+          "content": "Product Info"
+        },
+        {
+          "type": "text",
+          "id": "item_title",
+          "label": "Product Title",
+          "default": "Cotton White Underwear Block Out Edition"
+        },
+        {
+          "type": "text",
+          "id": "item_price",
+          "label": "Price",
+          "default": "$100.00",
+          "info": "Displayed as the main (or sale) price."
+        },
+        {
+          "type": "text",
+          "id": "item_price_old",
+          "label": "Original Price (optional)",
+          "info": "Fill this in only if the item is on sale. Shown struck-through beside the sale price."
+        },
+        {
+          "type": "header",
+          "content": "Filter Category"
+        },
+        {
+          "type": "select",
+          "id": "item_category",
+          "label": "Category",
+          "options": [
+            { "value": "kids",        "label": "For Kid's"     },
+            { "value": "men",         "label": "For Man's"     },
+            { "value": "women",       "label": "For Woman's"   },
+            { "value": "accessories", "label": "Accessories"   }
+          ],
+          "default": "accessories"
+        },
+        {
+          "type": "header",
+          "content": "Link"
+        },
+        {
+          "type": "url",
+          "id": "item_url",
+          "label": "Card Link URL",
+          "info": "Where clicking the product image takes the customer."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Best Sale Section",
+      "blocks": [
+        {
+          "type": "sale_item",
+          "settings": {
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_category": "kids"
+          }
+        },
+        {
+          "type": "sale_item",
+          "settings": {
+            "badge_text": "New",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_category": "accessories"
+          }
+        },
+        {
+          "type": "sale_item",
+          "settings": {
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_category": "accessories"
+          }
+        },
+        {
+          "type": "sale_item",
+          "settings": {
+            "badge_text": "Sale",
+            "badge_style": "badge-red",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "$120.00",
+            "item_category": "men"
+          }
+        },
+        {
+          "type": "sale_item",
+          "settings": {
+            "badge_text": "New",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_category": "women"
+          }
+        },
+        {
+          "type": "sale_item",
+          "settings": {
+            "badge_text": "Sale",
+            "badge_style": "badge-red",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "$150.00",
+            "item_category": "women"
+          }
+        },
+        {
+          "type": "sale_item",
+          "settings": {
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_category": "accessories"
+          }
+        },
+        {
+          "type": "sale_item",
+          "settings": {
+            "badge_text": "New",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_category": "men"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

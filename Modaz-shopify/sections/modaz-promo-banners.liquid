@@ -1,0 +1,675 @@
+{%- comment -%}
+  Section: Modaz Category Promo Banners
+  File: sections/modaz-promo-banners.liquid
+  Layout: Exact 3-column Modaz grid — tall-left | stacked-middle-pair | tall-right
+          Each column is a Shopify Block. The middle column always holds blocks 2 & 3
+          stacked vertically, matching the original design precisely.
+{%- endcomment -%}
+
+{%- liquid
+  assign sec    = section.settings
+  assign sid    = section.id
+  assign blocks = section.blocks
+-%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ----------------------------------------------------------
+     TOKENS
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} {
+    --mzp-accent:      {{ sec.accent_color }};
+    --mzp-primary:     {{ sec.primary_color }};
+    --mzp-white:       #ffffff;
+    --mzp-font:        'Poppins', sans-serif;
+    --mzp-max-width:   1200px;
+    --mzp-gap:         {{ sec.grid_gap }}px;
+    --mzp-pad:         {{ sec.section_padding }}px;
+    --mzp-tall-h:      {{ sec.tall_card_height }}px;
+    /* Half card = (tall - gap) / 2  — exact same math as original CSS */
+    --mzp-half-h:      calc((var(--mzp-tall-h) - var(--mzp-gap)) / 2);
+    --mzp-badge-bg:    {{ sec.badge_bg_color }};
+    --mzp-badge-text:  {{ sec.badge_text_color }};
+  }
+
+  /* ----------------------------------------------------------
+     RESETS
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} *, #mzp-{{ sid }} *::before, #mzp-{{ sid }} *::after {
+    box-sizing: border-box; margin: 0; padding: 0;
+  }
+  #mzp-{{ sid }} a { text-decoration: none; color: inherit; }
+  #mzp-{{ sid }} ul { list-style: none; }
+
+  /* ----------------------------------------------------------
+     SECTION WRAPPER
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} {
+    width: 100%;
+    font-family: var(--mzp-font);
+    padding: var(--mzp-pad) 0;
+    background-color: {{ sec.bg_color }};
+    {% if sec.bg_image != blank %}
+      background-image: url('{{ sec.bg_image | image_url: width: 1920 }}');
+      background-size: cover;
+      background-position: center;
+    {% endif %}
+  }
+
+  /* ----------------------------------------------------------
+     CONTAINER
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-container {
+    max-width: var(--mzp-max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+  }
+
+  /* ----------------------------------------------------------
+     OPTIONAL SECTION HEADER
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-header {
+    text-align: {{ sec.header_alignment }};
+    margin-bottom: 36px;
+  }
+  #mzp-{{ sid }} .mzp-eyebrow {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--mzp-accent);
+    margin-bottom: 10px;
+  }
+  #mzp-{{ sid }} .mzp-heading {
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 700;
+    color: var(--mzp-primary);
+    line-height: 1.2;
+  }
+
+  /* ----------------------------------------------------------
+     THE GRID
+     Exactly 3 columns: 1fr 1fr 1fr — matching original
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--mzp-gap);
+    align-items: start;
+  }
+
+  /* ----------------------------------------------------------
+     TALL CARDS (left & right columns)
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-card-tall {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: var(--mzp-tall-h);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eaeaea;
+  }
+
+  /* ----------------------------------------------------------
+     MIDDLE GROUP — flex column holding two half-height cards
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-middle-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mzp-gap);
+    height: var(--mzp-tall-h);
+  }
+
+  /* ----------------------------------------------------------
+     HALF CARDS (inside middle group)
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-card-half {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: var(--mzp-half-h);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eaeaea;
+    flex-shrink: 0;
+  }
+
+  /* ----------------------------------------------------------
+     IMAGES — fill every card perfectly
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-card-tall img,
+  #mzp-{{ sid }} .mzp-card-half img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  #mzp-{{ sid }} .mzp-card-tall:hover img,
+  #mzp-{{ sid }} .mzp-card-half:hover img {
+    transform: scale(1.07);
+  }
+
+  /* ----------------------------------------------------------
+     CENTRE WHITE BADGE — exact Modaz style
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-badge {
+    position: absolute;
+    background-color: var(--mzp-badge-bg);
+    padding: 14px 36px;
+    min-width: 180px;
+    text-align: center;
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  #mzp-{{ sid }} .mzp-card-tall:hover .mzp-badge,
+  #mzp-{{ sid }} .mzp-card-half:hover .mzp-badge {
+    transform: scale(1.04);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.12);
+  }
+  #mzp-{{ sid }} .mzp-badge span {
+    color: var(--mzp-badge-text);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: var(--mzp-font);
+    white-space: nowrap;
+  }
+
+  /* ----------------------------------------------------------
+     PROMO TAG — red strip top-left (optional per card)
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-tag {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    z-index: 6;
+    background-color: var(--mzp-accent);
+    color: var(--mzp-white);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    font-family: var(--mzp-font);
+    pointer-events: none;
+  }
+
+  /* ----------------------------------------------------------
+     FULL-CARD CLICKABLE LINK
+  ---------------------------------------------------------- */
+  #mzp-{{ sid }} .mzp-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+  }
+
+  /* ----------------------------------------------------------
+     RESPONSIVE
+  ---------------------------------------------------------- */
+  @media (max-width: 991px) {
+    #mzp-{{ sid }} .mzp-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    /* Middle group goes horizontal on tablet */
+    #mzp-{{ sid }} .mzp-middle-group {
+      flex-direction: row;
+      height: 360px;
+    }
+    #mzp-{{ sid }} .mzp-card-tall {
+      height: 400px;
+    }
+    #mzp-{{ sid }} .mzp-card-half {
+      height: 100%;
+      flex: 1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    #mzp-{{ sid }} .mzp-grid {
+      grid-template-columns: 1fr;
+    }
+    #mzp-{{ sid }} .mzp-middle-group {
+      flex-direction: column;
+      height: auto;
+    }
+    #mzp-{{ sid }} .mzp-card-tall,
+    #mzp-{{ sid }} .mzp-card-half {
+      height: 300px;
+      flex: unset;
+    }
+    #mzp-{{ sid }} .mzp-badge {
+      padding: 10px 24px;
+      min-width: 140px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #mzp-{{ sid }} .mzp-card-tall img,
+    #mzp-{{ sid }} .mzp-card-half img,
+    #mzp-{{ sid }} .mzp-badge {
+      transition: none !important;
+    }
+  }
+</style>
+
+{%- comment -%} ============================================================
+  HTML
+============================================================ {%- endcomment -%}
+<section
+  id="mzp-{{ sid }}"
+  aria-label="{{ sec.section_heading | default: 'Shop by category' | escape }}"
+>
+  <div class="mzp-container">
+
+    {%- comment -%} ── SECTION HEADER ── {%- endcomment -%}
+    {% if sec.section_eyebrow != blank or sec.section_heading != blank %}
+      <header class="mzp-header">
+        {% if sec.section_eyebrow != blank %}
+          <span class="mzp-eyebrow">{{ sec.section_eyebrow | escape }}</span>
+        {% endif %}
+        {% if sec.section_heading != blank %}
+          <h2 class="mzp-heading">{{ sec.section_heading | escape }}</h2>
+        {% endif %}
+      </header>
+    {% endif %}
+
+    {%- comment -%} ── PROMO GRID ──
+      Structure always mirrors original Modaz:
+        blocks[0]       → Column 1: tall-banner (left)
+        blocks[1]       → Column 2 top: half-banner
+        blocks[2]       → Column 2 bottom: half-banner
+        blocks[3]       → Column 3: tall-banner (right)
+      Client adds exactly 4 blocks to get the full layout.
+      Fewer blocks render gracefully.
+    {%- endcomment -%}
+    <div class="mzp-grid">
+
+      {%- comment -%} ── COLUMN 1: LEFT TALL BANNER ── {%- endcomment -%}
+      {% if section.blocks[0] %}
+        {%- assign b  = section.blocks[0] -%}
+        {%- assign bs = b.settings -%}
+        <div class="mzp-card-tall" {{ b.shopify_attributes }}>
+          {% if bs.card_image != blank %}
+            <img
+              src="{{ bs.card_image | image_url: width: 800 }}"
+              alt="{{ bs.badge_text | default: bs.card_image.alt | escape }}"
+              loading="eager"
+              width="{{ bs.card_image.width }}"
+              height="{{ bs.card_image.height }}"
+            >
+          {% elsif bs.card_image_url != blank %}
+            <img
+              src="{{ bs.card_image_url | escape }}"
+              alt="{{ bs.badge_text | escape }}"
+              loading="eager"
+            >
+          {% endif %}
+          {% if bs.promo_tag != blank %}
+            <div class="mzp-tag" aria-hidden="true">{{ bs.promo_tag | escape }}</div>
+          {% endif %}
+          {% if bs.badge_text != blank %}
+            <div class="mzp-badge" aria-hidden="true">
+              <span>{{ bs.badge_text | escape }}</span>
+            </div>
+          {% endif %}
+          {% if bs.card_url != blank %}
+            <a href="{{ bs.card_url }}" class="mzp-card-link" aria-label="{{ bs.badge_text | escape }}"></a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {%- comment -%} ── COLUMN 2: MIDDLE STACKED PAIR ── {%- endcomment -%}
+      {% if section.blocks[1] or section.blocks[2] %}
+        <div class="mzp-middle-group">
+
+          {% if section.blocks[1] %}
+            {%- assign b  = section.blocks[1] -%}
+            {%- assign bs = b.settings -%}
+            <div class="mzp-card-half" {{ b.shopify_attributes }}>
+              {% if bs.card_image != blank %}
+                <img
+                  src="{{ bs.card_image | image_url: width: 800 }}"
+                  alt="{{ bs.badge_text | default: bs.card_image.alt | escape }}"
+                  loading="lazy"
+                  width="{{ bs.card_image.width }}"
+                  height="{{ bs.card_image.height }}"
+                >
+              {% elsif bs.card_image_url != blank %}
+                <img
+                  src="{{ bs.card_image_url | escape }}"
+                  alt="{{ bs.badge_text | escape }}"
+                  loading="lazy"
+                >
+              {% endif %}
+              {% if bs.promo_tag != blank %}
+                <div class="mzp-tag" aria-hidden="true">{{ bs.promo_tag | escape }}</div>
+              {% endif %}
+              {% if bs.badge_text != blank %}
+                <div class="mzp-badge" aria-hidden="true">
+                  <span>{{ bs.badge_text | escape }}</span>
+                </div>
+              {% endif %}
+              {% if bs.card_url != blank %}
+                <a href="{{ bs.card_url }}" class="mzp-card-link" aria-label="{{ bs.badge_text | escape }}"></a>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if section.blocks[2] %}
+            {%- assign b  = section.blocks[2] -%}
+            {%- assign bs = b.settings -%}
+            <div class="mzp-card-half" {{ b.shopify_attributes }}>
+              {% if bs.card_image != blank %}
+                <img
+                  src="{{ bs.card_image | image_url: width: 800 }}"
+                  alt="{{ bs.badge_text | default: bs.card_image.alt | escape }}"
+                  loading="lazy"
+                  width="{{ bs.card_image.width }}"
+                  height="{{ bs.card_image.height }}"
+                >
+              {% elsif bs.card_image_url != blank %}
+                <img
+                  src="{{ bs.card_image_url | escape }}"
+                  alt="{{ bs.badge_text | escape }}"
+                  loading="lazy"
+                >
+              {% endif %}
+              {% if bs.promo_tag != blank %}
+                <div class="mzp-tag" aria-hidden="true">{{ bs.promo_tag | escape }}</div>
+              {% endif %}
+              {% if bs.badge_text != blank %}
+                <div class="mzp-badge" aria-hidden="true">
+                  <span>{{ bs.badge_text | escape }}</span>
+                </div>
+              {% endif %}
+              {% if bs.card_url != blank %}
+                <a href="{{ bs.card_url }}" class="mzp-card-link" aria-label="{{ bs.badge_text | escape }}"></a>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        </div>
+      {% endif %}
+
+      {%- comment -%} ── COLUMN 3: RIGHT TALL BANNER ── {%- endcomment -%}
+      {% if section.blocks[3] %}
+        {%- assign b  = section.blocks[3] -%}
+        {%- assign bs = b.settings -%}
+        <div class="mzp-card-tall" {{ b.shopify_attributes }}>
+          {% if bs.card_image != blank %}
+            <img
+              src="{{ bs.card_image | image_url: width: 800 }}"
+              alt="{{ bs.badge_text | default: bs.card_image.alt | escape }}"
+              loading="lazy"
+              width="{{ bs.card_image.width }}"
+              height="{{ bs.card_image.height }}"
+            >
+          {% elsif bs.card_image_url != blank %}
+            <img
+              src="{{ bs.card_image_url | escape }}"
+              alt="{{ bs.badge_text | escape }}"
+              loading="lazy"
+            >
+          {% endif %}
+          {% if bs.promo_tag != blank %}
+            <div class="mzp-tag" aria-hidden="true">{{ bs.promo_tag | escape }}</div>
+          {% endif %}
+          {% if bs.badge_text != blank %}
+            <div class="mzp-badge" aria-hidden="true">
+              <span>{{ bs.badge_text | escape }}</span>
+            </div>
+          {% endif %}
+          {% if bs.card_url != blank %}
+            <a href="{{ bs.card_url }}" class="mzp-card-link" aria-label="{{ bs.badge_text | escape }}"></a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var SID = {{ sid | json }};
+
+  function init() {
+    var section = document.getElementById('mzp-' + SID);
+    if (!section) return;
+    section.querySelectorAll('.mzp-card-tall, .mzp-card-half').forEach(function (card) {
+      var link = card.querySelector('.mzp-card-link');
+      if (!link) return;
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); link.click(); }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+
+  document.addEventListener('shopify:section:load',   function (e) { if (e.detail && e.detail.sectionId === SID) init(); });
+  document.addEventListener('shopify:section:select', function (e) { if (e.detail && e.detail.sectionId === SID) init(); });
+}());
+</script>
+
+{% schema %}
+{
+  "name": "Modaz Promo Banners",
+  "tag": "div",
+  "class": "mzp-section-wrapper",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "header",
+      "content": "🎨 Colors & Background"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent Color",
+      "default": "#f63440"
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary Text Color",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Section Background Image",
+      "info": "Overrides the background color above when set."
+    },
+    {
+      "type": "header",
+      "content": "📐 Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Section Top & Bottom Padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap Between Cards (px)",
+      "min": 8,
+      "max": 60,
+      "step": 2,
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "tall_card_height",
+      "label": "Tall Card Height (px)",
+      "min": 300,
+      "max": 800,
+      "step": 20,
+      "default": 560,
+      "info": "Height of the left and right tall banners. The two middle cards split this height automatically."
+    },
+    {
+      "type": "header",
+      "content": "🏷 Badge Style"
+    },
+    {
+      "type": "color",
+      "id": "badge_bg_color",
+      "label": "Badge Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge Text Color",
+      "default": "#222222"
+    },
+    {
+      "type": "header",
+      "content": "📝 Section Header"
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header Alignment",
+      "options": [
+        { "value": "left",   "label": "Left"   },
+        { "value": "center", "label": "Center" },
+        { "value": "right",  "label": "Right"  }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "text",
+      "id": "section_eyebrow",
+      "label": "Eyebrow Text",
+      "default": "SHOP BY CATEGORY",
+      "info": "Small accent label above the heading. Leave blank to hide."
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "Browse Our Collections",
+      "info": "Leave blank to hide the header area entirely."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "promo_card",
+      "name": "Banner Card",
+      "settings": [
+        {
+          "type": "header",
+          "content": "🖼 Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "card_image",
+          "label": "Card Image",
+          "info": "Recommended: 800×600px minimum. Fills the card via object-fit: cover."
+        },
+        {
+          "type": "text",
+          "id": "card_image_url",
+          "label": "External Image URL (fallback)",
+          "info": "Used only if no image is uploaded above."
+        },
+        {
+          "type": "header",
+          "content": "🏷 Badge & Tag"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Centre Badge Label",
+          "default": "FOR MEN'S",
+          "info": "The white centred badge. Leave blank to hide."
+        },
+        {
+          "type": "text",
+          "id": "promo_tag",
+          "label": "Promo Tag Strip",
+          "info": "Optional red accent strip at the top-left (e.g. NEW IN, SALE 30% OFF). Leave blank to hide."
+        },
+        {
+          "type": "header",
+          "content": "🔗 Link"
+        },
+        {
+          "type": "url",
+          "id": "card_url",
+          "label": "Card URL",
+          "info": "Makes the entire card clickable. Leave blank for no link."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modaz Promo Banners",
+      "category": "Image",
+      "blocks": [
+        {
+          "type": "promo_card",
+          "settings": {
+            "badge_text": "FOR MEN'S",
+            "promo_tag": ""
+          }
+        },
+        {
+          "type": "promo_card",
+          "settings": {
+            "badge_text": "FOR KID'S",
+            "promo_tag": "NEW IN"
+          }
+        },
+        {
+          "type": "promo_card",
+          "settings": {
+            "badge_text": "ACCESSORIES",
+            "promo_tag": ""
+          }
+        },
+        {
+          "type": "promo_card",
+          "settings": {
+            "badge_text": "FOR WOMEN'S",
+            "promo_tag": "SALE 30% OFF"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

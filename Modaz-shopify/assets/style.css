@@ -1,0 +1,1315 @@
+/* ==========================================================================
+   1. GLOBAL VARIABLES & RESET
+   ========================================================================== */
+:root {
+    --primary-color: #222222;
+    --accent-color: #f63440;     /* Modaz signature red accent */
+    --text-color: #666666;
+    --border-color: #e5e5e5;
+    --white: #ffffff;
+    --light-bg: #f9f9f9;
+    --font-main: 'Poppins', sans-serif;
+    --max-width: 1200px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--text-color);
+    background-color: var(--white);
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+ul {
+    list-style: none;
+}
+
+/* Global Content Container */
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
+/* ==========================================================================
+   2. HEADER SECTION
+   ========================================================================== */
+.site-header {
+    width: 100%;
+    background-color: var(--white);
+    z-index: 1000;
+}
+
+/* --- Top Bar Styles --- */
+.top-bar {
+    background-color: var(--light-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    padding: 10px 0;
+}
+
+.top-bar-inner {
+    display: flex;
+    justify-content: space-between; /* Pushes left items left, right items right */
+    align-items: center;
+}
+
+.top-left span {
+    margin-right: 20px;
+}
+
+.top-left i {
+    margin-right: 6px;
+    color: var(--text-color);
+}
+
+.top-right a {
+    margin-left: 20px;
+}
+
+.top-right a i {
+    font-size: 10px;
+    margin-left: 3px;
+}
+
+.top-right a:hover, .top-left span:hover {
+    color: var(--accent-color);
+}
+
+/* --- Main Navigation Bar Styles --- */
+.main-nav-bar {
+    padding: 25px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.main-nav-inner {
+    display: flex;
+    justify-content: space-between; /* Spaces out Logo, Nav Links, and Icons evenly */
+    align-items: center;
+}
+
+/* Logo styling */
+.site-logo a {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--primary-color);
+}
+
+.site-logo span {
+    color: var(--accent-color);
+}
+
+/* Mid Navigation Links */
+.nav-links {
+    display: flex;
+    gap: 35px; /* Perfect spacing between individual menu links */
+}
+
+.nav-links a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 0;
+    position: relative;
+}
+
+/* Simple hover animation line below links */
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--accent-color);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    width: 100%;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--accent-color);
+}
+
+/* Right Header Icons Styling */
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.icon-link {
+    font-size: 18px;
+    color: var(--primary-color);
+    position: relative;
+}
+
+.icon-link:hover {
+    color: var(--accent-color);
+}
+
+/* Red Shopping Cart Badge Count */
+.cart-icon {
+    position: relative;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: var(--accent-color);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 600;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+/* ==========================================================================
+   3. HERO SLIDER SECTION (100% EXACT MODAZ CLONE)
+   ========================================================================== */
+.hero-section {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.slider-container {
+    width: 100%;
+    height: 75vh;
+    min-height: 520px;
+    position: relative;
+}
+
+/* --- The Top Progress Timeline --- */
+.slider-timeline-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;          /* Minimalist thin line */
+    background-color: rgba(0, 0, 0, 0.08);
+    z-index: 20;          /* Stays completely on top of images */
+}
+
+.slider-timeline-bar {
+    height: 100%;
+    width: 0%;            /* Managed dynamically by JavaScript */
+    background-color: grey;
+}
+
+.slider-track {
+    display: flex;
+    width: 200%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+.slide {
+    width: 50%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+}
+
+.slide-light {
+    background-color: #eaeaea; 
+}
+
+/* --- Content Entry Animations --- */
+.slide-content {
+    width: 100%;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s, opacity 0.8s ease 0.3s;
+}
+
+.slide.active-slide .slide-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.text-left {
+    text-align: left;
+    max-width: 650px;
+}
+
+
+
+.text-right {
+    justify-content: center ;
+    text-align: right;
+}
+
+/* --- Slide 1 Typography --- */
+.slide-subtitle-alt {
+    color: #dfdfdf;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.slide-title-large {
+    color: var(--white);
+    font-size: 64px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+    line-height: 1.1;
+}
+
+.slide-text-sub {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    margin-bottom: 35px;
+}
+
+/* --- Slide 2 Typography --- */
+.subtitle-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.side-line {
+    width: 45px;
+    height: 1px;
+    background-color: #999999;
+}
+
+.slide-subtitle-light {
+    color: #333333;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+.slide-title-massive {
+    color: #333333;
+    font-size: 130px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    line-height: 0.95;
+    margin-bottom: 15px;
+}
+
+.slide-text-sale {
+    color: #333333;
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-bottom: 35px;
+}
+
+.slide-text-sale span {
+    color: var(--accent-color);
+}
+
+/* --- Reusable Modaz Buttons --- */
+.btn-modaz {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: var(--white);
+    padding: 13px 42px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-modaz:hover {
+    background-color: #333333;
+}
+
+.btn-shadow {
+    box-shadow: 0px 8px 15px rgba(246, 52, 64, 0.25);
+}
+
+/* ==========================================================================
+   4. CATEGORY PROMO BANNERS (EXACT THREE-COLUMN GRID)
+   ========================================================================== */
+.promo-section {
+    padding: 60px 0;
+    background-color: var(--white);
+}
+
+/* Three-column master grid setup */
+.promo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 perfect columns matching the picture */
+    gap: 30px;                          /* Uniform spacing gap */
+    align-items: start;
+}
+
+/* Reusable base card box settings */
+.promo-item {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Height mapping to align everything symmetrically */
+.tall-banner {
+    height: 560px; /* Full structural height for Left & Right items */
+}
+
+.promo-middle-group {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Gap between the two horizontal stacked cards */
+    height: 560px;
+}
+
+.half-banner {
+    height: 265px; /* (560px total - 30px gap) / 2 = 265px each */
+}
+
+/* Image containment settings */
+.promo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* --- Exact Center White Badge Overlay --- */
+.promo-badge {
+    position: absolute;
+    background-color: var(--white);
+    padding: 14px 36px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.05);
+    z-index: 5;
+    pointer-events: none; /* Mouse movements pass through directly to image element beneath */
+    min-width: 180px;
+    text-align: center;
+}
+
+.promo-badge span {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* --- Premium Animation States --- */
+.promo-item:hover img {
+    transform: scale(1.07); /* Smooth, rich zooming action */
+}
+
+/* --- Responsive Layout for Mobile/Tablets --- */
+@media (max-width: 991px) {
+    .promo-grid {
+        grid-template-columns: 1fr; /* Drop to a stacked single layout block row on mobile */
+    }
+    
+    .tall-banner, .promo-middle-group, .half-banner {
+        height: 400px; /* Set comfortable uniform heights when elements break down single-column */
+    }
+}
+
+/* ==========================================================================
+   5. NEW PRODUCT GRID SECTION (100% PERFECT HOVER & SIZE MATCH)
+   ========================================================================== */
+.products-section {
+    padding: 80px 0;
+    background-color: var(--white);
+}
+
+/* Wide Container modification to stretch card layout boundaries */
+.container-wide {
+    max-width: 1400px; 
+    margin: 0 auto;
+    padding: 0 70px;
+}
+
+.section-title-wrapper {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-title-wrapper h2 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #222222;
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+}
+
+.title-underline {
+    width: 60px;
+    height: 3px;
+    background-color: var(--accent-color);
+    margin: 0 auto;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-left: 1px solid #eaeaea;
+    position: relative;
+}
+
+/* --- The Enhanced Product Card Block --- */
+.product-card {
+    position: relative;
+    background-color: var(--white);
+    padding: 30px 25px 45px 25px; /* Added padding depth for bottom button breathing room */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    border-right: 1px solid #eaeaea;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                border-color 0.2s ease;
+    z-index: 1;
+}
+
+/* Deep Shadow Popout & Seamless Edge Transition */
+.product-card:hover {
+    z-index: 10;
+    border-color: transparent;
+    /* Rich, high-end drop shadow to perfectly replicate your snapshot */
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.14);
+    transform: translateY(-5px);
+}
+
+.card-top-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    height: 30px;
+}
+
+.product-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--white);
+    padding: 4px 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-green { background-color: #7bc779; }
+.badge-red   { background-color: var(--accent-color); }
+
+.wishlist-btn {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: #888888;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.wishlist-btn:hover {
+    color: var(--accent-color);
+}
+
+.product-card:hover .wishlist-btn {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* --- Taller Image Frame to Match Design Scaling Exactly --- */
+.product-img-box {
+    width: 100%;
+    height: 280px; /* Increased height to make pictures exactly match the design scale */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.product-img-box img {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+}
+
+/* --- Card Details & Typography --- */
+.product-info {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.product-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #222222;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.product-price {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 18px;
+}
+
+.price-old {
+    color: #b5b5b5;
+    text-decoration: line-through;
+    font-weight: 400;
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.color-swatches {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.swatch {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+}
+
+.swatch.active::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 1px solid #888888;
+    border-radius: 50%;
+}
+
+.swatch-red   { background-color: #e62a2a; }
+.swatch-green { background-color: #7bc779; }
+.swatch-black { background-color: #111111; }
+
+/* --- Ultra Bolded Add to Cart Action Bottom Row --- */
+.btn-add-to-cart {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--accent-color);
+    color: var(--white);
+    border: none;
+    padding: 16px 0;
+    font-size: 13px;
+    font-weight: 800; /* Made heavily bold to exactly replicate reference graphics */
+    letter-spacing: 1.5px; /* Clean spacing emphasis */
+    cursor: pointer;
+    text-align: center;
+    
+    opacity: 0;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease;
+}
+
+.btn-add-to-cart:hover {
+    background-color: #d6222d;
+}
+
+.product-card:hover .btn-add-to-cart {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1199px) {
+    .product-img-box { height: 230px; }
+}
+@media (max-width: 991px) {
+    .products-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 580px) {
+    .products-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ==========================================================================
+   6. MID-PAGE PROMO BANNER SECTION (PARALLAX EFFECT EDITION)
+   ========================================================================== */
+.mid-promo-banner {
+    width: 100%;
+    /* Set the uploaded image asset directly as a continuous backdrop frame */
+    background-image: url('../Images/bg-parallax3.jpg'); 
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto;
+    
+    
+    position: relative;
+    overflow: hidden;
+    padding: 110px 0; /* Enhanced padding scale for premium visual breathing room */
+}
+
+.mid-promo-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 260px;
+}
+
+/* --- Centered Content Overlays --- */
+.mid-promo-content {
+    text-align: center;
+    z-index: 5;
+    max-width: 600px;
+}
+
+.mid-promo-subtitle {
+    font-size: 18px;
+    font-weight: 300;
+    color: #555555;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.mid-promo-heading {
+    font-size: 54px;
+    font-weight: 600;
+    color: #222222;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+    margin-bottom: 15px;
+}
+
+.mid-promo-divider {
+    width: 110px;
+    height: 1px;
+    background-color: #bbbbbb;
+    margin: 0 auto 18px auto;
+}
+
+.mid-promo-text {
+    font-size: 16px;
+    font-weight: 400;
+    color: #666666;
+    margin-bottom: 35px;
+}
+
+/* --- The Specialized Action Button --- */
+.btn-promo-parallax {
+    display: inline-block;
+    background-color: var(--accent-color); /* Signature Modaz Red standard initialization state */
+    color: var(--white);
+    padding: 15px 48px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    border: none;
+    text-transform: uppercase;
+    /* Ultra smooth color shift transition profile */
+    transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.3s ease;
+}
+
+/* Perfect color swap mapping update requested by design team blueprint specifications */
+.btn-promo-parallax:hover {
+    background-color: #333333; /* Shifts instantly into deep modern slate dark on cursor overlay */
+    color: var(--white);
+}
+
+/* --- Responsive Performance Fallbacks --- */
+@media (max-width: 991px) {
+    .mid-promo-heading { font-size: 44px; }
+    /* iOS Safari fixes for background-attachment performance lag */
+    .mid-promo-banner { background-attachment: scroll; } 
+}
+@media (max-width: 480px) {
+    .mid-promo-heading { font-size: 34px; }
+    .mid-promo-banner { padding: 80px 0; }
+}
+
+
+/* ==========================================================================
+   7. TABBED PRODUCT GRID SECTION
+   ========================================================================== */
+.best-sale-section {
+    padding: 80px 0;
+    background-color: var(--white);
+}
+
+/* --- Filter Navigation Tabs Row --- */
+.filter-tab-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0; /* Clear gaps so outlines bind together beautifully */
+    margin-bottom: 50px;
+}
+
+.tab-btn {
+    background-color: var(--white);
+    color: #666666;
+    border: 1px solid #eaeaea;
+    padding: 12px 28px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 -0.5px; /* Pull blocks together seamlessly to avoid double borders */
+}
+
+.tab-btn:hover {
+    color: var(--accent-color);
+}
+
+/* Focused Highlight Tab State */
+.tab-btn.active {
+    background-color: var(--accent-color); /* Signature Modaz Red background tint */
+    color: var(--white) !important;
+    border-color: var(--accent-color);
+}
+
+/* --- Loop-Hole Prevention Framework Rules --- */
+.dynamic-filter-grid {
+    border-bottom: none; /* Let bottom cards clip cleanly */
+}
+
+/* Utility visibility classes targeted by JavaScript engines */
+.filter-item {
+    display: flex !important;
+    animation: fadeInGrid 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.filter-item.hide {
+    display: none !important;
+}
+
+.opacity-0 {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Crisp grid entry animation for card switches */
+@keyframes fadeInGrid {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Mobile Tab Adjustments --- */
+@media (max-width: 767px) {
+    .filter-tab-bar {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .tab-btn {
+        margin: 0;
+        border-radius: 2px;
+        padding: 10px 20px;
+        font-size: 12px;
+    }
+}
+
+
+/* ==========================================================================
+   8. STORE FEATURES ICON BAR SECTION
+   ========================================================================== */
+.store-features-section {
+    background-color: #f6f6f6; /* Subtle light grey background matching snapshot background */
+    padding: 50px 0;
+
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Clean 4-column distribution */
+    gap: 20px;
+    text-align: center;
+}
+
+/* Individual feature blocks layout align */
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+/* Precise Modaz Accent Red Color Tracking for the SVG Icons */
+.feature-icon {
+    font-size: 24px;
+    color: var(--accent-color); /* Signature Brand Red */
+    margin-bottom: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Feature Typography Configurations */
+.feature-text h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #222222;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+}
+
+.feature-text p {
+    font-size: 13px;
+    color: #777777; /* Muted description text layout color */
+    font-weight: 400;
+    margin: 0;
+}
+
+/* --- Responsive Layout Breaks --- */
+@media (max-width: 991px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2x2 structural grid array wrap on tablets */
+        gap: 35px 20px;
+    }
+}
+
+@media (max-width: 520px) {
+    .features-grid {
+        grid-template-columns: 1fr; /* Clean single column downscale flow on phones */
+        gap: 30px;
+    }
+}
+
+
+/* ==========================================================================
+   9. NEW LATEST EDITORIAL SECTION (REFACTORED HOVER FIX)
+   ========================================================================== */
+.new-latest-section {
+    padding: 80px 0;
+    background-color: var(--white);
+}
+
+.latest-editorial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+/* --- Card Structural Base Layout --- */
+.editorial-card-wrapper {
+    position: relative;
+    background-color: #222222; 
+    overflow: hidden;
+    cursor: pointer;
+    height: 380px; 
+}
+
+/* Ensure the image takes up the full card area */
+.editorial-card-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* --- The Full-Width Sliding Mask Overlay --- */
+.editorial-mask-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Dark translucent background matching snapshot */
+    z-index: 5;
+    pointer-events: none;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* CRITICAL LOOP-HOLE FIX: 
+       Hide the dark overlay completely by default so the image underneath stays 100% bright.
+    */
+    opacity: 0;
+    visibility: hidden;
+    
+    /* Smooth transition for sliding, fading in, and toggling visibility */
+    transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                opacity 0.4s ease, 
+                visibility 0.4s ease;
+}
+
+/* --- Direction-Aware Hidden Positions --- */
+/* These position the overlay completely outside the card boundaries before hover */
+.card-enter-top    .editorial-mask-overlay { transform: translateY(-100%); }
+.card-enter-right  .editorial-mask-overlay { transform: translateX(100%);  }
+.card-enter-bottom .editorial-mask-overlay { transform: translateY(100%);  }
+.card-enter-left   .editorial-mask-overlay { transform: translateX(-100%); }
+
+/* ACTIVE HOVER STATE:
+   Turn the background dark ONLY when JavaScript adds the '.hovered' class on mouse enter.
+*/
+.editorial-card-wrapper.hovered .editorial-mask-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, 0); /* Pulls it perfectly into view */
+}
+
+/* --- Typography Text Rise inside the Overlay --- */
+.overlay-inner-content {
+    width: 85%;
+    text-align: center;
+    color: var(--white);
+    
+    /* Pushes text down slightly so it rises smoothly during hover */
+    transform: translateY(30px); 
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.05s, 
+                opacity 0.3s ease 0.05s;
+}
+
+/* Reveal text content perfectly alongside the dark background slide */
+.editorial-card-wrapper.hovered .overlay-inner-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* --- Exact Text Typography Settings From Snapshot --- */
+.editorial-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.editorial-meta {
+    font-size: 11px;
+    font-weight: 400;
+    color: #aaaaaa;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 25px;
+}
+
+/* Target Modaz Accent Red for the Admin tag */
+.editorial-meta span {
+    color: var(--accent-color);
+}
+
+.editorial-body-wrapper {
+    width: 100%;
+}
+
+.editorial-description {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: #cccccc;
+    margin-bottom: 25px;
+}
+
+/* --- Read More Underlined Link --- */
+.read-more-link {
+    display: inline-block;
+    color: var(--accent-color);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+/* Precise thin red accent line below text */
+.read-more-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--accent-color);
+}
+
+/* Responsive breakpoint rules */
+@media (max-width: 1199px) { .editorial-card-wrapper { height: 320px; } }
+@media (max-width: 991px) { .latest-editorial-grid { grid-template-columns: 1fr; gap: 20px; } }
+
+
+/* ==========================================================================
+   11. NEWSLETTER SUBSCRIPTION BAR
+   ========================================================================== */
+.newsletter-social-bar {
+    background-color: #f6f6f6; /* Soft grey background framework canvas */
+    padding: 45px 0;
+}
+
+.newsletter-bar-grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Spaces the 3 distinct elements out cleanly */
+    gap: 30px;
+}
+
+/* --- Column 1: Typography Configuration --- */
+.newsletter-title-col h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #222222;
+    letter-spacing: 0.2px;
+    margin: 0;
+}
+
+/* --- Column 2: Inline Form Styling Elements --- */
+.newsletter-form-col {
+    flex-grow: 1;
+    max-width: 550px; /* Restricts the input track width */
+}
+
+.newsletter-inline-form {
+    display: flex;
+    width: 100%;
+}
+
+.newsletter-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 20px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-right: none; /* Merges input seamlessly with button track border */
+    font-size: 14px;
+    color: #333333;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.newsletter-input::placeholder {
+    color: #b5b5b5; /* Precise muted placeholder gray tint */
+}
+
+.newsletter-submit-btn {
+    height: 48px;
+    background-color: var(--accent-color); /* Modaz Signature Red */
+    color: #ffffff;
+    border: none;
+    padding: 0 35px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+.newsletter-submit-btn:hover {
+    background-color: #222222; /* Clean dark accent feedback on button interaction */
+}
+
+/* --- Column 3: Social Platform Icon Grid Array --- */
+.social-links-list {
+    display: flex;
+    align-items: center;
+    gap: 22px; /* Uniform flat horizontal spacing array */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.social-links-list a {
+    color: #222222; /* Charcoal base brand mapping colors */
+    font-size: 16px;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+/* Replicate Modaz red accent toggle on hover states across social icons */
+.social-links-list a:hover {
+    color: var(--accent-color);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1199px) {
+    .newsletter-bar-grid {
+        gap: 20px;
+    }
+    .newsletter-title-col h2 {
+        font-size: 19px;
+    }
+}
+
+@media (max-width: 991px) {
+    .newsletter-bar-grid {
+        flex-direction: column; /* Stack vertically on tablets and smaller screens */
+        text-align: center;
+        gap: 25px;
+    }
+    .newsletter-form-col {
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   12. MAIN SITE FOOTER & SUB-BAR
+   ========================================================================== */
+.site-main-footer {
+    background-color: var(--white);
+    padding-top: 80px;
+}
+
+/* 4-Column flexible grid framework setup */
+.footer-columns-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 1.2fr; /* Allocates slightly more width for info column */
+    gap: 40px;
+    padding-bottom: 60px;
+}
+
+/* --- Columns 1-3: Navigation Menu Links --- */
+.footer-links-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links-menu li {
+    margin-bottom: 18px; /* Vertical gap spacing between rows */
+}
+
+.footer-links-menu li:last-child {
+    margin-bottom: 0;
+}
+
+.footer-links-menu a {
+    font-size: 15px;
+    font-weight: 500; /* Bold typography profile matching snapshot layout */
+    color: #33331E;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+/* Interactive brand accent highlight on links */
+.footer-links-menu a:hover {
+    color: var(--accent-color);
+}
+
+/* --- Column 4: Brand Identity & Contact Info --- */
+.footer-info-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dual Color Logo Typography */
+.footer-logo h2 {
+    font-size: 30px;
+    font-weight: 800;
+    color: #222222;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.5px;
+}
+
+/* Red Accent for logo suffix */
+.footer-logo h2 span {
+    color: var(--accent-color);
+}
+
+.footer-contact-details p {
+    font-size: 14px;
+    color: #666666;
+    line-height: 1.8;
+    margin: 0 0 10px 0;
+}
+
+.footer-contact-details p:last-child {
+    margin-bottom: 0;
+}
+
+.footer-contact-details a {
+    color: #666666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-contact-details a:hover {
+    color: var(--accent-color);
+}
+
+/* --- Bottom Copyright Sub-Bar --- */
+.footer-copyright-sub-bar {
+    border-top: 1px solid #eeeeee;
+    padding: 30px 0;
+    text-align: center;
+}
+
+.footer-copyright-sub-bar p {
+    font-size: 13px;
+    color: #777777;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.footer-copyright-sub-bar p span {
+    font-weight: 700;
+    color: #222222;
+}
+.footer-copyright-sub-bar p span:hover{
+    color: var(--accent-color);
+}
+
+/* --- Responsiveness Adjustments --- */
+@media (max-width: 991px) {
+    .footer-columns-grid {
+        grid-template-columns: repeat(2, 1fr); /* Collapses to 2x2 grid on smaller tablets */
+        gap: 40px 30px;
+    }
+}
+
+@media (max-width: 575px) {
+    .footer-columns-grid {
+        grid-template-columns: 1fr; /* Stacks column units vertically on phones */
+        text-align: center;
+        gap: 30px;
+    }
+}

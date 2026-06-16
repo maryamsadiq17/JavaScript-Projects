@@ -1,0 +1,19 @@
+{
+  "name": "Header",
+  "type": "header",
+  "sections": {
+    "modaz_header": {
+      "type": "modaz-header",
+      "settings": {
+        "main_menu_handle": "main-menu",
+        "logo_text": "Mo|daz.",
+        "show_search_icon": true,
+        "show_account_icon": true,
+        "show_cart_icon": true
+      }
+    }
+  },
+  "order": [
+    "modaz_header"
+  ]
+}

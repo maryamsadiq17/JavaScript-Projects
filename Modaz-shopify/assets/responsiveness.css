@@ -1,0 +1,150 @@
+/* ==========================================================================
+   13. COMPREHENSIVE RESPONSIVE DESIGN ARCHITECTURE
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   LARGE TABLETS & LAPTOPS (Max-Width: 1200px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+    /* Tighten global gutters slightly */
+    .container-wide {
+        padding: 0 30px;
+    }
+
+    /* Scale direction-aware cards height down to maintain aspect ratios */
+    .editorial-card-wrapper {
+        height: 320px;
+    }
+    
+    .editorial-title {
+        font-size: 22px;
+    }
+
+    /* Newsletter grid adjustments */
+    .newsletter-bar-grid {
+        gap: 20px;
+    }
+    .newsletter-title-col h2 {
+        font-size: 19px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   SMALL TABLETS & LANDSCAPE PHONES (Max-Width: 992px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 992px) {
+    /* 1. New Product & Best Sale Grids: Collapse from 4 columns to 2 columns */
+    .new-product-grid,
+    .best-sale-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 30px 20px !important;
+    }
+
+    /* 2. Editorial Image Grid: Stack into a single continuous stream */
+    .latest-editorial-grid {
+        grid-template-columns: 1fr !important;
+        gap: 25px !important;
+    }
+    .editorial-card-wrapper {
+        height: 400px; /* Give them a generous height when single column */
+    }
+
+    /* 3. Newsletter Subscription Bar: Stack elements vertically */
+    .newsletter-bar-grid {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 25px;
+    }
+    .newsletter-form-col {
+        width: 100%;
+        max-width: 100%;
+    }
+    .newsletter-inline-form {
+        max-width: 500px;
+        margin: 0 auto; /* Center the form block */
+    }
+
+    /* 4. Main Site Footer: Convert 4-column split into a neat 2x2 grid matrix */
+    .footer-columns-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 40px 30px !important;
+    }
+    .footer-info-column {
+        padding-top: 10px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   PORTRAIT SMARTPHONES (Max-Width: 576px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 576px) {
+    /* Global Section Spacing Reduction for Mobile viewports */
+    .new-latest-section,
+    .site-main-footer,
+    .new-product-section {
+        padding-top: 50px !important;
+        padding-bottom: 50px !important;
+    }
+
+    /* 1. Product Cards: Drop down to 1 item per row for max clarity */
+    .new-product-grid,
+    .best-sale-grid {
+        grid-template-columns: 1fr !important;
+        gap: 35px !important;
+    }
+    
+    /* Center text inside mobile product info blocks */
+    .product-card-item {
+        text-align: center;
+    }
+
+    /* 2. Editorial Image Cards: Reduce height slightly for small screens */
+    .editorial-card-wrapper {
+        height: 280px;
+    }
+    .editorial-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+    .editorial-description {
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    /* 3. Newsletter Bar Form Layout: Collapse Input and Button into individual rows */
+    .newsletter-inline-form {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .newsletter-input {
+        border-right: 1px solid #e0e0e0 !important; /* Restore hidden right border */
+        text-align: center;
+        border-radius: 3px;
+    }
+    .newsletter-submit-btn {
+        width: 100%;
+        border-radius: 3px;
+    }
+
+    /* 4. Footer Columns: Stack perfectly straight down the center */
+    .footer-columns-grid {
+        grid-template-columns: 1fr !important;
+        text-align: center;
+        gap: 35px !important;
+    }
+    
+    .footer-links-menu li {
+        margin-bottom: 14px;
+    }
+    
+    .footer-logo h2 {
+        font-size: 26px;
+        margin-bottom: 12px;
+    }
+
+    /* Copyright Sub-Bar */
+    .footer-copyright-sub-bar {
+        padding: 20px 0;
+    }
+}

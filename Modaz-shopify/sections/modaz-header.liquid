@@ -1,0 +1,1120 @@
+{%- comment -%}
+  Section: Modaz Custom Header
+  File: sections/modaz-header.liquid
+  - Navigation pulled from a single Shopify menu (link_list) — like Dawn theme
+  - Fully dynamic: sticky, mobile hamburger, cart count, account, search
+  - All scoped to section.id — safe for multiple instances
+{%- endcomment -%}
+
+{%- liquid
+  assign sec = section.settings
+  assign sid = section.id
+  assign main_menu = linklists[sec.main_menu_handle]
+-%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+  /* ============================================================
+     CSS CUSTOM PROPERTIES — scoped per section instance
+  ============================================================ */
+  #mz-header-{{ sid }} {
+    --mz-primary:    {{ sec.primary_color }};
+    --mz-accent:     {{ sec.accent_color }};
+    --mz-text-muted: {{ sec.text_color }};
+    --mz-border:     {{ sec.border_color }};
+    --mz-bg:         {{ sec.header_bg_color }};
+    --mz-topbar-bg:  {{ sec.topbar_bg_color }};
+    --mz-white:      #ffffff;
+    --mz-font:       'Poppins', sans-serif;
+    --mz-max-width:  1200px;
+  }
+
+  /* ============================================================
+     SCOPED RESETS
+  ============================================================ */
+  #mz-header-{{ sid }} *,
+  #mz-header-{{ sid }} *::before,
+  #mz-header-{{ sid }} *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  #mz-header-{{ sid }} a { text-decoration: none; color: inherit; }
+  #mz-header-{{ sid }} ul { list-style: none; }
+  #mz-header-{{ sid }} button { cursor: pointer; background: none; border: none; padding: 0; }
+
+  /* ============================================================
+     OUTER WRAPPER
+  ============================================================ */
+  #mz-header-{{ sid }} {
+    width: 100%;
+    font-family: var(--mz-font);
+    position: relative;
+    z-index: 1000;
+  }
+
+  /* ============================================================
+     CONTAINER
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-container {
+    max-width: var(--mz-max-width);
+    margin: 0 auto;
+    padding: 0 30px;
+    width: 100%;
+  }
+
+  /* ============================================================
+     TOP UTILITY BAR
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-top-bar {
+    background-color: var(--mz-topbar-bg);
+    border-bottom: 1px solid var(--mz-border);
+    font-size: 12px;
+    color: var(--mz-text-muted);
+    padding: 8px 0;
+  }
+  #mz-header-{{ sid }} .mz-top-bar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  #mz-header-{{ sid }} .mz-top-left,
+  #mz-header-{{ sid }} .mz-top-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  #mz-header-{{ sid }} .mz-top-bar a,
+  #mz-header-{{ sid }} .mz-top-bar span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--mz-text-muted);
+    font-size: 12px;
+    transition: color 0.3s ease;
+  }
+  #mz-header-{{ sid }} .mz-top-bar a:hover {
+    color: var(--mz-accent);
+  }
+  #mz-header-{{ sid }} .mz-top-bar i {
+    font-size: 11px;
+  }
+
+  /* ============================================================
+     MAIN NAV WRAPPER
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-nav-wrapper {
+    background-color: var(--mz-bg);
+    border-bottom: 1px solid var(--mz-border);
+    width: 100%;
+    transition: padding 0.3s ease, box-shadow 0.3s ease;
+    z-index: 999;
+  }
+  #mz-header-{{ sid }} .mz-nav-wrapper.mz-sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  /* Spacer prevents content jump when nav goes sticky */
+  #mz-header-{{ sid }} .mz-sticky-spacer {
+    display: none;
+  }
+
+  /* ============================================================
+     INNER FLEX ROW
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    height: 70px;
+  }
+
+  /* ============================================================
+     LOGO
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-logo {
+    flex-shrink: 0;
+  }
+  #mz-header-{{ sid }} .mz-logo a {
+    display: inline-flex;
+    align-items: center;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--mz-primary);
+    font-family: var(--mz-font);
+    line-height: 1;
+  }
+  #mz-header-{{ sid }} .mz-logo .mz-accent {
+    color: var(--mz-accent);
+  }
+  #mz-header-{{ sid }} .mz-logo-img {
+    max-height: 44px;
+    width: auto;
+    display: block;
+  }
+
+  /* ============================================================
+     DESKTOP NAVIGATION — pulled from link_list
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-desktop-nav {
+    display: flex;
+    align-items: center;
+  }
+  #mz-header-{{ sid }} .mz-nav-list {
+    display: flex;
+    align-items: center;
+    gap: 38px;
+  }
+  #mz-header-{{ sid }} .mz-nav-list > li {
+    position: relative;
+  }
+  #mz-header-{{ sid }} .mz-nav-list > li > a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mz-primary);       /* Default: dark — never red unless active/hover */
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 8px 0;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+    display: block;
+  }
+  /* Underline starts hidden on ALL links by default */
+  #mz-header-{{ sid }} .mz-nav-list > li > a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;                        /* Hidden — grows only on hover or .mz-active */
+    height: 2px;
+    background-color: var(--mz-accent);
+    transition: width 0.3s ease;
+  }
+  /* Hover: red text + red underline slides in */
+  #mz-header-{{ sid }} .mz-nav-list > li > a:hover {
+    color: var(--mz-accent);
+  }
+  #mz-header-{{ sid }} .mz-nav-list > li > a:hover::after {
+    width: 100%;
+  }
+  /* Active (JS-assigned): red text + red underline — exactly one link */
+  #mz-header-{{ sid }} .mz-nav-list > li > a.mz-active {
+    color: var(--mz-accent);
+  }
+  #mz-header-{{ sid }} .mz-nav-list > li > a.mz-active::after {
+    width: 100%;
+  }
+
+  /* ── Dropdown support for child links ── */
+  #mz-header-{{ sid }} .mz-nav-list > li > a .mz-chevron {
+    font-size: 9px;
+    margin-left: 4px;
+    vertical-align: middle;
+    transition: transform 0.3s ease;
+  }
+  #mz-header-{{ sid }} .mz-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    min-width: 200px;
+    background-color: var(--mz-white);
+    border: 1px solid var(--mz-border);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 1001;
+    padding: 8px 0;
+  }
+  #mz-header-{{ sid }} .mz-nav-list > li:hover .mz-dropdown {
+    display: block;
+  }
+  #mz-header-{{ sid }} .mz-nav-list > li:hover > a .mz-chevron {
+    transform: rotate(180deg);
+  }
+  #mz-header-{{ sid }} .mz-dropdown li a {
+    display: block;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--mz-primary);
+    text-transform: none;
+    letter-spacing: 0.3px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  #mz-header-{{ sid }} .mz-dropdown li a:hover,
+  #mz-header-{{ sid }} .mz-dropdown li a.mz-active {
+    color: var(--mz-accent);
+    background-color: #f9f9f9;
+  }
+
+  /* ============================================================
+     ICON CLUSTER — Search, Account, Cart
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-icons {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-shrink: 0;
+  }
+  #mz-header-{{ sid }} .mz-icon-btn {
+    font-size: 17px;
+    color: var(--mz-primary);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+  #mz-header-{{ sid }} .mz-icon-btn:hover {
+    color: var(--mz-accent);
+  }
+
+  /* Cart badge */
+  #mz-header-{{ sid }} .mz-cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: var(--mz-accent);
+    color: var(--mz-white);
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    font-family: var(--mz-font);
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  #mz-header-{{ sid }} .mz-cart-badge[data-count="0"] {
+    opacity: 0;
+  }
+
+  /* ============================================================
+     SEARCH DRAWER
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-search-drawer {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--mz-white);
+    border-bottom: 1px solid var(--mz-border);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    z-index: 998;
+    padding: 20px 0;
+  }
+  #mz-header-{{ sid }} .mz-search-drawer.mz-open {
+    display: block;
+  }
+  #mz-header-{{ sid }} .mz-search-form {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--mz-border);
+    background: #f9f9f9;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #mz-header-{{ sid }} .mz-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-family: var(--mz-font);
+    color: var(--mz-primary);
+    outline: none;
+  }
+  #mz-header-{{ sid }} .mz-search-input::placeholder {
+    color: #aaaaaa;
+  }
+  #mz-header-{{ sid }} .mz-search-submit {
+    padding: 12px 20px;
+    background-color: var(--mz-accent);
+    color: var(--mz-white);
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  #mz-header-{{ sid }} .mz-search-submit:hover {
+    background-color: #cc2030;
+  }
+
+  /* ============================================================
+     HAMBURGER — mobile only
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+  #mz-header-{{ sid }} .mz-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--mz-primary);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  #mz-header-{{ sid }} .mz-hamburger.mz-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #mz-header-{{ sid }} .mz-hamburger.mz-open span:nth-child(2) { opacity: 0; }
+  #mz-header-{{ sid }} .mz-hamburger.mz-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ============================================================
+     MOBILE DRAWER
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-mobile-drawer {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--mz-white);
+    border-top: 1px solid var(--mz-border);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    z-index: 997;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+  #mz-header-{{ sid }} .mz-mobile-drawer.mz-open {
+    display: block;
+  }
+  #mz-header-{{ sid }} .mz-mobile-nav-list {
+    padding: 8px 0;
+  }
+  #mz-header-{{ sid }} .mz-mobile-nav-list li a {
+    display: block;
+    padding: 13px 24px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mz-primary);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    border-bottom: 1px solid var(--mz-border);
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  #mz-header-{{ sid }} .mz-mobile-nav-list li:last-child a {
+    border-bottom: none;
+  }
+  #mz-header-{{ sid }} .mz-mobile-nav-list li a:hover,
+  #mz-header-{{ sid }} .mz-mobile-nav-list li a.mz-active {
+    color: var(--mz-accent);
+    background-color: #f9f9f9;
+  }
+  /* Mobile child links indented */
+  #mz-header-{{ sid }} .mz-mobile-nav-list li ul li a {
+    padding-left: 40px;
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    font-weight: 400;
+    color: var(--mz-text-muted);
+  }
+  #mz-header-{{ sid }} .mz-mobile-nav-list li ul li a:hover,
+  #mz-header-{{ sid }} .mz-mobile-nav-list li ul li a.mz-active {
+    color: var(--mz-accent);
+  }
+
+  /* ============================================================
+     ANNOUNCEMENT BAR
+  ============================================================ */
+  #mz-header-{{ sid }} .mz-announcement {
+    background-color: var(--mz-accent);
+    color: var(--mz-white);
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  #mz-header-{{ sid }} .mz-announcement a {
+    color: var(--mz-white);
+    text-decoration: underline;
+    margin-left: 8px;
+    font-weight: 600;
+  }
+  #mz-header-{{ sid }} .mz-announcement a:hover {
+    opacity: 0.85;
+  }
+
+  /* ============================================================
+     RESPONSIVE BREAKPOINTS
+  ============================================================ */
+  @media (max-width: 991px) {
+    #mz-header-{{ sid }} .mz-desktop-nav { display: none; }
+    #mz-header-{{ sid }} .mz-hamburger   { display: flex; }
+    #mz-header-{{ sid }} .mz-nav-inner   { height: 62px; }
+    #mz-header-{{ sid }} .mz-logo a      { font-size: 22px; }
+  }
+
+  @media (max-width: 575px) {
+    #mz-header-{{ sid }} .mz-top-bar     { display: none; }
+    #mz-header-{{ sid }} .mz-icons       { gap: 16px; }
+    #mz-header-{{ sid }} .mz-icon-btn    { font-size: 16px; }
+    #mz-header-{{ sid }} .mz-container   { padding: 0 16px; }
+    #mz-header-{{ sid }} .mz-nav-inner   { height: 58px; }
+  }
+</style>
+
+{%- comment -%} ===================== HTML ===================== {%- endcomment -%}
+<div id="mz-header-{{ sid }}">
+
+  {%- comment -%} ── ANNOUNCEMENT BAR ── {%- endcomment -%}
+  {% if sec.show_announcement and sec.announcement_text != blank %}
+    <div class="mz-announcement">
+      {{ sec.announcement_text | escape }}
+      {% if sec.announcement_link_label != blank %}
+        <a href="{{ sec.announcement_link_url | default: '#' }}">
+          {{ sec.announcement_link_label | escape }}
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {%- comment -%} ── TOP UTILITY BAR ── {%- endcomment -%}
+  {% if sec.show_top_bar %}
+    <div class="mz-top-bar">
+      <div class="mz-container mz-top-bar-inner">
+        <div class="mz-top-left">
+          {% if sec.phone_number != blank %}
+            <span>
+              <i class="fa-solid fa-phone" aria-hidden="true"></i>
+              {{ sec.phone_number | escape }}
+            </span>
+          {% endif %}
+          {% if sec.email_address != blank %}
+            <span>
+              <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+              {{ sec.email_address | escape }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="mz-top-right">
+          {% if sec.top_link_1_label != blank %}
+            <a href="{{ sec.top_link_1_url | default: '#' }}">
+              {{ sec.top_link_1_label | escape }}
+            </a>
+          {% endif %}
+          {% if sec.top_link_2_label != blank %}
+            <a href="{{ sec.top_link_2_url | default: '#' }}">
+              {{ sec.top_link_2_label | escape }}
+            </a>
+          {% endif %}
+          {% if sec.currency_label != blank %}
+            <a href="#">
+              {{ sec.currency_label | escape }}
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {%- comment -%} ── MAIN NAV ── {%- endcomment -%}
+  <div class="mz-nav-wrapper" id="mz-navwrap-{{ sid }}">
+    <div class="mz-container">
+      <div class="mz-nav-inner">
+
+        {%- comment -%} LOGO {%- endcomment -%}
+        <div class="mz-logo">
+          <a href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+            {% if sec.logo_image != blank %}
+              {{
+                sec.logo_image
+                | image_url: width: 300
+                | image_tag:
+                  class: 'mz-logo-img',
+                  alt: shop.name,
+                  loading: 'eager'
+              }}
+            {% else %}
+              {%- assign logo_parts = sec.logo_text | default: 'Mo|daz.' | split: '|' -%}
+              {{ logo_parts[0] }}<span class="mz-accent">{{ logo_parts[1] }}</span>
+            {% endif %}
+          </a>
+        </div>
+
+        {%- comment -%} DESKTOP NAV — built from a single link_list {%- endcomment -%}
+        <nav class="mz-desktop-nav" aria-label="Main navigation">
+          <ul class="mz-nav-list" id="mz-nav-list-{{ sid }}">
+            {% if main_menu != blank %}
+              {% for link in main_menu.links %}
+                <li>
+                  <a href="{{ link.url }}" data-href="{{ link.url }}">
+                    {{ link.title | escape }}
+                    {% if link.links.size > 0 %}
+                      <i class="fa-solid fa-chevron-down mz-chevron" aria-hidden="true"></i>
+                    {% endif %}
+                  </a>
+                  {% if link.links.size > 0 %}
+                    <ul class="mz-dropdown">
+                      {% for child_link in link.links %}
+                        <li>
+                          <a href="{{ child_link.url }}" data-href="{{ child_link.url }}">
+                            {{ child_link.title | escape }}
+                          </a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            {% endif %}
+          </ul>
+        </nav>
+
+        {%- comment -%} ICONS — Search, Account, Cart {%- endcomment -%}
+        <div class="mz-icons">
+
+          {% if sec.show_search_icon %}
+            <button
+              class="mz-icon-btn"
+              id="mz-search-toggle-{{ sid }}"
+              aria-label="Toggle search"
+              aria-expanded="false"
+              aria-controls="mz-search-{{ sid }}"
+            >
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            </button>
+          {% endif %}
+
+          {% if sec.show_account_icon %}
+            <a
+              href="{{ routes.account_url }}"
+              class="mz-icon-btn"
+              aria-label="Account"
+            >
+              <i class="fa-regular fa-user" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+
+          {% if sec.show_wishlist_icon and sec.wishlist_url != blank %}
+            <a
+              href="{{ sec.wishlist_url }}"
+              class="mz-icon-btn"
+              aria-label="Wishlist"
+            >
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+
+          {% if sec.show_cart_icon %}
+            <a
+              href="{{ routes.cart_url }}"
+              class="mz-icon-btn"
+              aria-label="Cart ({{ cart.item_count }} items)"
+              id="mz-cart-link-{{ sid }}"
+            >
+              <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+              <span
+                class="mz-cart-badge"
+                data-count="{{ cart.item_count }}"
+                aria-live="polite"
+              >{{ cart.item_count }}</span>
+            </a>
+          {% endif %}
+
+        </div>
+
+        {%- comment -%} HAMBURGER — mobile only {%- endcomment -%}
+        <button
+          class="mz-hamburger"
+          id="mz-hamburger-{{ sid }}"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+          aria-controls="mz-drawer-{{ sid }}"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+      </div>
+    </div>
+
+    {%- comment -%} SEARCH DRAWER {%- endcomment -%}
+    {% if sec.show_search_icon %}
+      <div class="mz-search-drawer" id="mz-search-{{ sid }}">
+        <div class="mz-container">
+          <form action="{{ routes.search_url }}" method="get" role="search" class="mz-search-form">
+            <input type="hidden" name="type" value="product">
+            <input
+              type="search"
+              name="q"
+              class="mz-search-input"
+              placeholder="{{ sec.search_placeholder | default: 'Search products…' | escape }}"
+              aria-label="Search"
+              autocomplete="off"
+            >
+            <button type="submit" class="mz-search-submit" aria-label="Submit search">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+    {%- comment -%} MOBILE DRAWER {%- endcomment -%}
+    <div class="mz-mobile-drawer" id="mz-drawer-{{ sid }}" aria-hidden="true">
+      <ul class="mz-mobile-nav-list">
+        {% if main_menu != blank %}
+          {% for link in main_menu.links %}
+            <li>
+              <a href="{{ link.url }}" data-href="{{ link.url }}">
+                {{ link.title | escape }}
+              </a>
+              {% if link.links.size > 0 %}
+                <ul>
+                  {% for child_link in link.links %}
+                    <li>
+                      <a href="{{ child_link.url }}" data-href="{{ child_link.url }}">{{ child_link.title | escape }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+    </div>
+
+  </div>{%- comment -%} end .mz-nav-wrapper {%- endcomment -%}
+
+  {%- comment -%} Sticky spacer — prevents content jump when nav becomes fixed {%- endcomment -%}
+  <div class="mz-sticky-spacer" id="mz-spacer-{{ sid }}" aria-hidden="true"></div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  function onReady(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn);
+    } else {
+      fn();
+    }
+  }
+
+  onReady(function () {
+    var SID         = {{ sid | json }};
+    var navWrap     = document.getElementById('mz-navwrap-'      + SID);
+    var spacer      = document.getElementById('mz-spacer-'       + SID);
+    var hamburger   = document.getElementById('mz-hamburger-'    + SID);
+    var mobileDrawer= document.getElementById('mz-drawer-'       + SID);
+    var searchToggle= document.getElementById('mz-search-toggle-'+ SID);
+    var searchDrawer= document.getElementById('mz-search-'       + SID);
+
+    if (!navWrap) return;
+
+    /* ── 1. STICKY HEADER ─────────────────────────── */
+    var THRESHOLD   = {{ sec.sticky_threshold | default: 100 }};
+    var navHeight   = 0;
+    var isSticky    = false;
+
+    function measure() { navHeight = navWrap.offsetHeight; }
+
+    function handleScroll() {
+      var sticky = window.scrollY > THRESHOLD;
+      if (sticky === isSticky) return;
+      isSticky = sticky;
+      if (sticky) {
+        navWrap.classList.add('mz-sticky');
+        spacer.style.display = 'block';
+        spacer.style.height  = navHeight + 'px';
+      } else {
+        navWrap.classList.remove('mz-sticky');
+        spacer.style.display = 'none';
+        spacer.style.height  = '0';
+      }
+    }
+
+    measure();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', measure,       { passive: true });
+
+    /* ── 2. MOBILE HAMBURGER ──────────────────────── */
+    if (hamburger && mobileDrawer) {
+      hamburger.addEventListener('click', function () {
+        var open = mobileDrawer.classList.toggle('mz-open');
+        hamburger.classList.toggle('mz-open', open);
+        hamburger.setAttribute('aria-expanded', String(open));
+        mobileDrawer.setAttribute('aria-hidden', String(!open));
+        /* Close search if open */
+        if (searchDrawer) {
+          searchDrawer.classList.remove('mz-open');
+          if (searchToggle) searchToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    /* ── 3. SEARCH DRAWER TOGGLE ──────────────────── */
+    if (searchToggle && searchDrawer) {
+      searchToggle.addEventListener('click', function () {
+        var open = searchDrawer.classList.toggle('mz-open');
+        searchToggle.setAttribute('aria-expanded', String(open));
+        if (open) {
+          var input = searchDrawer.querySelector('.mz-search-input');
+          if (input) setTimeout(function(){ input.focus(); }, 50);
+          /* Close mobile drawer if open */
+          if (mobileDrawer) {
+            mobileDrawer.classList.remove('mz-open');
+            if (hamburger) {
+              hamburger.classList.remove('mz-open');
+              hamburger.setAttribute('aria-expanded', 'false');
+            }
+          }
+        }
+      });
+    }
+
+    /* Close search & mobile drawer on outside click */
+    document.addEventListener('click', function (e) {
+      if (!navWrap.contains(e.target)) {
+        if (searchDrawer) searchDrawer.classList.remove('mz-open');
+        if (mobileDrawer) {
+          mobileDrawer.classList.remove('mz-open');
+          if (hamburger) {
+            hamburger.classList.remove('mz-open');
+            hamburger.setAttribute('aria-expanded', 'false');
+          }
+        }
+      }
+    });
+
+    /* Close mobile drawer when a link inside it is tapped */
+    if (mobileDrawer) {
+      mobileDrawer.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') {
+          mobileDrawer.classList.remove('mz-open');
+          if (hamburger) {
+            hamburger.classList.remove('mz-open');
+            hamburger.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+    }
+
+    /* ── 4. ACTIVE LINK — exact URL match only, cascading through children ─
+       We intentionally avoid Shopify's link.active (set server-side)
+       because it marks parent links active for ALL child pages, turning
+       multiple nav items red. JS pathname matching is precise.
+    ─────────────────────────────────────────────────────────────────── */
+    (function () {
+      var currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+      var allLinks = navWrap.querySelectorAll('[data-href]');
+      
+      var matchedLink = null;
+      var bestLength = 0;
+
+      allLinks.forEach(function (a) {
+        try {
+          var linkPath = new URL(a.getAttribute('data-href'), location.origin).pathname.replace(/\/$/, '') || '/';
+          /* Exact match matches highest score pathing */
+          if (linkPath === currentPath) {
+            matchedLink = a;
+            bestLength = 9999;
+          } else if (
+            currentPath.startsWith(linkPath) &&
+            linkPath !== '/' &&
+            linkPath.length > bestLength
+          ) {
+            matchedLink = a;
+            bestLength = linkPath.length;
+          }
+        } catch (err) {}
+      });
+
+      if (matchedLink) {
+        matchedLink.classList.add('mz-active');
+        
+        /* If a dropdown item matches, ensure its parent desktop node turns red too */
+        var dropdownContainer = matchedLink.closest('.mz-dropdown');
+        if (dropdownContainer) {
+          var parentAnchor = dropdownContainer.previousElementSibling;
+          if (parentAnchor && parentAnchor.tagName === 'A') {
+            parentAnchor.classList.add('mz-active');
+          }
+        }
+      }
+    })();
+
+    /* ── 5. LIVE CART COUNT (AJAX cart events) ────── */
+    function updateCartBadge(count) {
+      var badge = document.querySelector('#mz-header-' + SID + ' .mz-cart-badge');
+      var link  = document.getElementById('mz-cart-link-' + SID);
+      if (!badge) return;
+      badge.textContent = count;
+      badge.setAttribute('data-count', count);
+      if (link) link.setAttribute('aria-label', 'Cart (' + count + ' items)');
+    }
+
+    /* Shopify AJAX cart event */
+    document.addEventListener('cart:updated', function (e) {
+      if (e.detail && typeof e.detail.itemCount !== 'undefined') {
+        updateCartBadge(e.detail.itemCount);
+      }
+    });
+
+    /* Also listen to fetch responses for themes using Shopify's cart API */
+    var _fetch = window.fetch;
+    window.fetch = function () {
+      return _fetch.apply(this, arguments).then(function (res) {
+        var url = (arguments[0] || '').toString();
+        if (url.includes('/cart/add') || url.includes('/cart/change') || url.includes('/cart/update')) {
+          fetch('/cart.js').then(function(r){ return r.json(); }).then(function(cart){
+            updateCartBadge(cart.item_count);
+          });
+        }
+        return res;
+      });
+    };
+
+  }); /* end onReady */
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Modaz Header",
+  "class": "mz-header-section",
+  "limit": 1,
+  "settings": [
+
+    {
+      "type": "header",
+      "content": "Navigation Menu"
+    },
+    {
+      "type": "link_list",
+      "id": "main_menu_handle",
+      "label": "Main Menu",
+      "default": "main-menu",
+      "info": "Select the menu to display. Edit menus at Online Store → Navigation."
+    },
+
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo Image",
+      "info": "Upload your logo. Leave blank to use the text logo below."
+    },
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Text Logo",
+      "default": "Mo|daz.",
+      "info": "Use a pipe ( | ) to split the two-tone logo. The second part renders in accent color. Example: Mo|daz."
+    },
+
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "header_bg_color",
+      "label": "Header Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary Text & Icon Color",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent Color",
+      "default": "#f63440"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Muted / Secondary Text Color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border Color",
+      "default": "#e5e5e5"
+    },
+
+    {
+      "type": "header",
+      "content": "Header Icons"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search_icon",
+      "label": "Show Search Icon",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search Placeholder Text",
+      "default": "Search products…"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account_icon",
+      "label": "Show Account Icon",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wishlist_icon",
+      "label": "Show Wishlist Icon",
+      "default": false
+    },
+    {
+      "type": "url",
+      "id": "wishlist_url",
+      "label": "Wishlist Page URL",
+      "info": "Only shown if the wishlist icon is enabled above."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cart_icon",
+      "label": "Show Cart Icon",
+      "default": true
+    },
+
+    {
+      "type": "header",
+      "content": "Sticky Header"
+    },
+    {
+      "type": "range",
+      "id": "sticky_threshold",
+      "label": "Sticky Scroll Threshold (px)",
+      "min": 0,
+      "max": 400,
+      "step": 10,
+      "default": 100,
+      "info": "Pixels scrolled before the header locks to the top of the page."
+    },
+
+    {
+      "type": "header",
+      "content": "Announcement Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show Announcement Bar",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "announcement_text",
+      "label": "Announcement Message",
+      "default": "Free shipping on all orders over $99!"
+    },
+    {
+      "type": "text",
+      "id": "announcement_link_label",
+      "label": "Announcement Link Label",
+      "info": "Optional call-to-action beside the message."
+    },
+    {
+      "type": "url",
+      "id": "announcement_link_url",
+      "label": "Announcement Link URL"
+    },
+
+    {
+      "type": "header",
+      "content": "Top Utility Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_top_bar",
+      "label": "Show Top Utility Bar",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "topbar_bg_color",
+      "label": "Top Bar Background Color",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "text",
+      "id": "phone_number",
+      "label": "Phone Number",
+      "default": "+1 234 567 890"
+    },
+    {
+      "type": "text",
+      "id": "email_address",
+      "label": "Email Address",
+      "default": "support@modaz.com"
+    },
+    {
+      "type": "text",
+      "id": "top_link_1_label",
+      "label": "Top Bar Link 1 Label",
+      "default": "Our Stores"
+    },
+    {
+      "type": "url",
+      "id": "top_link_1_url",
+      "label": "Top Bar Link 1 URL"
+    },
+    {
+      "type": "text",
+      "id": "top_link_2_label",
+      "label": "Top Bar Link 2 Label",
+      "default": "Track Your Order"
+    },
+    {
+      "type": "url",
+      "id": "top_link_2_url",
+      "label": "Top Bar Link 2 URL"
+    },
+    {
+      "type": "text",
+      "id": "currency_label",
+      "label": "Currency Label",
+      "default": "USD",
+      "info": "Leave blank to hide."
+    }
+
+  ],
+
+  "presets": [
+    {
+      "name": "Modaz Header"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,451 @@
+{% comment %}
+  ============================================================
+  Section: Main Site Footer
+  File:    sections/main-footer.liquid
+  ============================================================
+{% endcomment %}
+
+<style>
+  /* ==========================================================================
+     12. MAIN SITE FOOTER & SUB-BAR
+     ========================================================================== */
+  #shopify-section-{{ section.id }} .site-main-footer {
+      background-color: var(--white);
+      padding-top: 80px;
+  }
+
+  /* 4-Column flexible grid framework setup */
+  #shopify-section-{{ section.id }} .footer-columns-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr) 1.2fr;
+      gap: 40px;
+      padding-bottom: 60px;
+  }
+
+  /* --- Columns 1-3: Navigation Menu Links --- */
+  #shopify-section-{{ section.id }} .footer-links-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+  }
+
+  #shopify-section-{{ section.id }} .footer-links-menu li {
+      margin-bottom: 18px;
+  }
+
+  #shopify-section-{{ section.id }} .footer-links-menu li:last-child {
+      margin-bottom: 0;
+  }
+
+  #shopify-section-{{ section.id }} .footer-links-menu a {
+font-size: 15px;
+    font-weight: 500;
+      color: #33331E;
+      text-decoration: none;
+      transition: color 0.3s ease;
+  }
+
+  /* Interactive brand accent highlight on links */
+  #shopify-section-{{ section.id }} .footer-links-menu a:hover {
+      color: var(--accent-color);
+  }
+
+  /* --- Column 4: Brand Identity & Contact Info --- */
+  #shopify-section-{{ section.id }} .footer-info-column {
+      display: flex;
+      flex-direction: column;
+  }
+
+  /* Dual Color Logo Typography */
+  #shopify-section-{{ section.id }} .footer-logo h2 {
+      font-size: 30px;
+      font-weight: 800;
+      color: #222222;
+      margin: 0 0 20px 0;
+      letter-spacing: -0.5px;
+  }
+
+  /* Red Accent for logo suffix */
+  #shopify-section-{{ section.id }} .footer-logo h2 span {
+      color: var(--accent-color);
+  }
+
+  #shopify-section-{{ section.id }} .footer-logo-img {
+      max-width: 160px;
+      height: auto;
+      margin-bottom: 20px;
+      display: block;
+  }
+
+  #shopify-section-{{ section.id }} .footer-contact-details p {
+      font-size: 18px;
+      font-weight: 500;
+      color: #666666;
+      line-height: 1.8;
+      margin: 0 0 10px 0;
+  }
+
+  #shopify-section-{{ section.id }} .footer-contact-details p:last-child {
+      margin-bottom: 0;
+  }
+
+  #shopify-section-{{ section.id }} .footer-contact-details a {
+      color: #666666;
+      text-decoration: none;
+      transition: color 0.3s ease;
+  }
+
+  #shopify-section-{{ section.id }} .footer-contact-details a:hover {
+      color: var(--accent-color);
+  }
+
+  /* --- Footer Column Heading --- */
+  #shopify-section-{{ section.id }} .footer-col-heading {
+      font-size: 15px;
+      font-weight: 700;
+      color: #222222;
+      margin: 0 0 20px 0;
+      letter-spacing: 0.2px;
+  }
+
+  /* --- Social Icons Row --- */
+  #shopify-section-{{ section.id }} .footer-social-icons {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      list-style: none;
+      padding: 0;
+      margin: 20px 0 0 0;
+  }
+
+  #shopify-section-{{ section.id }} .footer-social-icons a {
+      color: #444444;
+      font-size: 15px;
+      text-decoration: none;
+      transition: color 0.3s ease;
+  }
+
+  #shopify-section-{{ section.id }} .footer-social-icons a:hover {
+      color: var(--accent-color);
+  }
+
+  /* --- Bottom Copyright Sub-Bar --- */
+  #shopify-section-{{ section.id }} .footer-copyright-sub-bar {
+      border-top: 1px solid #eeeeee;
+      padding: 30px 0;
+      text-align: center;
+  }
+
+  #shopify-section-{{ section.id }} .footer-copyright-sub-bar p {
+      font-size: 13px;
+      color: #777777;
+      margin: 0;
+      letter-spacing: 0.5px;
+  }
+
+  #shopify-section-{{ section.id }} .footer-copyright-sub-bar p span {
+      font-weight: 700;
+      color: #222222;
+  }
+
+  #shopify-section-{{ section.id }} .footer-copyright-sub-bar p span:hover {
+      color: var(--accent-color);
+  }
+
+  /* --- Responsiveness Adjustments --- */
+  @media (max-width: 991px) {
+      #shopify-section-{{ section.id }} .footer-columns-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 40px 30px;
+      }
+  }
+
+  @media (max-width: 575px) {
+      #shopify-section-{{ section.id }} .footer-columns-grid {
+          grid-template-columns: 1fr;
+          text-align: center;
+          gap: 30px;
+      }
+      #shopify-section-{{ section.id }} .footer-social-icons {
+          justify-content: center;
+      }
+      #shopify-section-{{ section.id }} .footer-logo-img {
+          margin-left: auto;
+          margin-right: auto;
+      }
+  }
+</style>
+
+<footer class="site-main-footer">
+  <div class="container container-wide">
+    <div class="footer-columns-grid">
+
+      {% for block in section.blocks %}
+
+        {%- case block.type -%}
+
+          {%- when 'footer_menu' -%}
+            <div class="footer-nav-column" {{ block.shopify_attributes }}>
+              {% if block.settings.menu_heading != blank %}
+                <p class="footer-col-heading">{{ block.settings.menu_heading | escape }}</p>
+              {% endif %}
+              {% if block.settings.menu_linklist != blank %}
+                {%- assign nav = linklists[block.settings.menu_linklist] -%}
+                {% if nav.links.size > 0 %}
+                  <ul class="footer-links-menu">
+                    {% for link in nav.links %}
+                      <li>
+                        <a href="{{ link.url }}">{{ link.title | escape }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              {% endif %}
+            </div>
+
+          {%- when 'contact_info' -%}
+            <div class="footer-info-column" {{ block.shopify_attributes }}>
+              {% if block.settings.logo_image != blank %}
+                <div class="footer-logo">
+                  <img
+                    src="{{ block.settings.logo_image | image_url: width: 320 }}"
+                    alt="{{ shop.name | escape }}"
+                    loading="lazy"
+                    width="160"
+                    class="footer-logo-img"
+                  >
+                </div>
+              {% else %}
+                <div class="footer-logo">
+                  <h2>{{ block.settings.logo_text_main | escape }}<span>{{ block.settings.logo_text_accent | escape }}</span></h2>
+                </div>
+              {% endif %}
+
+              <div class="footer-contact-details">
+                {% if block.settings.contact_address != blank %}
+                  <p>{{ block.settings.contact_address | escape }}</p>
+                {% endif %}
+                {% if block.settings.contact_phone != blank %}
+                  <p>{{ block.settings.contact_phone | escape }}</p>
+                {% endif %}
+                {% if block.settings.contact_email != blank %}
+                  <p><a href="mailto:{{ block.settings.contact_email | escape }}">{{ block.settings.contact_email | escape }}</a></p>
+                {% endif %}
+              </div>
+
+              {% if block.settings.show_social_icons %}
+                {%- assign has_social = false -%}
+                {% if section.settings.social_facebook != blank or section.settings.social_instagram != blank or section.settings.social_twitter != blank or section.settings.social_pinterest != blank %}
+                  {%- assign has_social = true -%}
+                {% endif %}
+                {% if has_social %}
+                  <ul class="footer-social-icons">
+                    {% if section.settings.social_facebook != blank %}
+                      <li>
+                        <a href="{{ section.settings.social_facebook }}" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                          <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                    {% if section.settings.social_instagram != blank %}
+                      <li>
+                        <a href="{{ section.settings.social_instagram }}" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                          <i class="fa-brands fa-instagram"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                    {% if section.settings.social_twitter != blank %}
+                      <li>
+                        <a href="{{ section.settings.social_twitter }}" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                          <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                    {% if section.settings.social_pinterest != blank %}
+                      <li>
+                        <a href="{{ section.settings.social_pinterest }}" aria-label="Pinterest" target="_blank" rel="noopener noreferrer">
+                          <i class="fa-brands fa-pinterest-p"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                  </ul>
+                {% endif %}
+              {% endif %}
+
+            </div>
+
+        {%- endcase -%}
+
+      {% endfor %}
+
+    </div>
+  </div>
+
+  <div class="footer-copyright-sub-bar">
+    <div class="container">
+      {% if section.settings.copyright_text != blank %}
+        <p>{{ section.settings.copyright_text }}</p>
+      {% endif %}
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Main Footer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Social Media Links"
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "url",
+      "id": "social_twitter",
+      "label": "X / Twitter URL"
+    },
+    {
+      "type": "url",
+      "id": "social_pinterest",
+      "label": "Pinterest URL"
+    },
+    {
+      "type": "header",
+      "content": "Copyright Bar"
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "Copyright Text",
+      "default": "Copyright @2018 <span>Modaz</span>",
+      "info": "Wrap the bold brand name in <span> tags to apply the bold dark styling."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "footer_menu",
+      "name": "Navigation Column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "menu_heading",
+          "label": "Column Heading",
+          "info": "Optional. Leave blank to show links only."
+        },
+        {
+          "type": "link_list",
+          "id": "menu_linklist",
+          "label": "Navigation Menu",
+          "info": "Select a menu from Shopify Admin → Navigation."
+        }
+      ]
+    },
+    {
+      "type": "contact_info",
+      "name": "Brand & Contact Info",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Logo"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo_image",
+          "label": "Logo Image",
+          "info": "If set, overrides the text logo below."
+        },
+        {
+          "type": "text",
+          "id": "logo_text_main",
+          "label": "Logo Text (main)",
+          "default": "Mo"
+        },
+        {
+          "type": "text",
+          "id": "logo_text_accent",
+          "label": "Logo Text (accent — red)",
+          "default": "daz."
+        },
+        {
+          "type": "header",
+          "content": "Contact Details"
+        },
+        {
+          "type": "text",
+          "id": "contact_address",
+          "label": "Address",
+          "default": "112 Kingdom, NA 12, New York"
+        },
+        {
+          "type": "text",
+          "id": "contact_phone",
+          "label": "Phone Number",
+          "default": "+12 345 678 910"
+        },
+        {
+          "type": "text",
+          "id": "contact_email",
+          "label": "Email Address",
+          "default": "infor.deercreative@gmail.com"
+        },
+        {
+          "type": "header",
+          "content": "Social Icons"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social_icons",
+          "label": "Show Social Icons",
+          "default": true,
+          "info": "Social icon URLs are managed in the global section settings above."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main Footer",
+      "blocks": [
+        {
+          "type": "footer_menu",
+          "settings": {
+            "menu_heading": ""
+          }
+        },
+        {
+          "type": "footer_menu",
+          "settings": {
+            "menu_heading": ""
+          }
+        },
+        {
+          "type": "footer_menu",
+          "settings": {
+            "menu_heading": ""
+          }
+        },
+        {
+          "type": "contact_info",
+          "settings": {
+            "logo_text_main": "Mo",
+            "logo_text_accent": "daz.",
+            "contact_address": "112 Kingdom, NA 12, New York",
+            "contact_phone": "+12 345 678 910",
+            "contact_email": "infor.deercreative@gmail.com",
+            "show_social_icons": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

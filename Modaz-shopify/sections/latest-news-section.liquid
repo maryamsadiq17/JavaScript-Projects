@@ -1,0 +1,409 @@
+{% comment %}
+  ============================================================
+  Section: Latest News Section
+  File:    sections/latest-news-section.liquid
+  ============================================================
+{% endcomment %}
+
+<style>
+  /* ==========================================================================
+     9. NEW LATEST EDITORIAL SECTION (REFACTORED HOVER FIX)
+     ========================================================================== */
+  #shopify-section-{{ section.id }} .new-latest-section {
+      padding: 80px 0;
+      background-color: var(--white);
+  }
+
+  #shopify-section-{{ section.id }} .latest-editorial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+  }
+
+  /* --- Card Structural Base Layout --- */
+  #shopify-section-{{ section.id }} .editorial-card-wrapper {
+      position: relative;
+      background-color: #222222;
+      overflow: hidden;
+      cursor: pointer;
+      height: 380px;
+  }
+
+  /* Ensure the image takes up the full card area */
+  #shopify-section-{{ section.id }} .editorial-card-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+  }
+
+  /* --- The Full-Width Sliding Mask Overlay --- */
+  #shopify-section-{{ section.id }} .editorial-mask-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 5;
+      pointer-events: none;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      /* CRITICAL LOOP-HOLE FIX:
+         Hide the dark overlay completely by default so the image underneath stays 100% bright.
+      */
+      opacity: 0;
+      visibility: hidden;
+
+      /* Smooth transition for sliding, fading in, and toggling visibility */
+      transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  opacity 0.4s ease,
+                  visibility 0.4s ease;
+  }
+
+  /* --- Direction-Aware Hidden Positions --- */
+  /* These position the overlay completely outside the card boundaries before hover */
+  #shopify-section-{{ section.id }} .card-enter-top    .editorial-mask-overlay { transform: translateY(-100%); }
+  #shopify-section-{{ section.id }} .card-enter-right  .editorial-mask-overlay { transform: translateX(100%);  }
+  #shopify-section-{{ section.id }} .card-enter-bottom .editorial-mask-overlay { transform: translateY(100%);  }
+  #shopify-section-{{ section.id }} .card-enter-left   .editorial-mask-overlay { transform: translateX(-100%); }
+
+  /* ACTIVE HOVER STATE:
+     Turn the background dark ONLY when JavaScript adds the '.hovered' class on mouse enter.
+  */
+  #shopify-section-{{ section.id }} .editorial-card-wrapper.hovered .editorial-mask-overlay {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(0, 0); /* Pulls it perfectly into view */
+  }
+
+  /* --- Typography Text Rise inside the Overlay --- */
+  #shopify-section-{{ section.id }} .overlay-inner-content {
+      width: 85%;
+      text-align: center;
+      color: var(--white);
+
+      /* Pushes text down slightly so it rises smoothly during hover */
+      transform: translateY(30px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.05s,
+                  opacity 0.3s ease 0.05s;
+  }
+
+  /* Reveal text content perfectly alongside the dark background slide */
+  #shopify-section-{{ section.id }} .editorial-card-wrapper.hovered .overlay-inner-content {
+      transform: translateY(0);
+      opacity: 1;
+  }
+
+  /* --- Exact Text Typography Settings From Snapshot --- */
+  #shopify-section-{{ section.id }} .editorial-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+  }
+
+  #shopify-section-{{ section.id }} .editorial-meta {
+      font-size: 11px;
+      font-weight: 400;
+      color: #aaaaaa;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 25px;
+  }
+
+  /* Target Modaz Accent Red for the Admin tag */
+  #shopify-section-{{ section.id }} .editorial-meta span {
+      color: var(--accent-color);
+  }
+
+  #shopify-section-{{ section.id }} .editorial-body-wrapper {
+      width: 100%;
+  }
+
+  #shopify-section-{{ section.id }} .editorial-description {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: #cccccc;
+      margin-bottom: 25px;
+  }
+
+  /* --- Read More Underlined Link --- */
+  #shopify-section-{{ section.id }} .read-more-link {
+      display: inline-block;
+      color: var(--accent-color);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 4px;
+  }
+
+  /* Precise thin red accent line below text */
+  #shopify-section-{{ section.id }} .read-more-link::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      bottom: 0;
+      left: 0;
+      background-color: var(--accent-color);
+  }
+
+  /* Responsive breakpoint rules */
+  @media (max-width: 1199px) {
+      #shopify-section-{{ section.id }} .editorial-card-wrapper { height: 320px; }
+  }
+  @media (max-width: 991px) {
+      #shopify-section-{{ section.id }} .latest-editorial-grid { grid-template-columns: 1fr; gap: 20px; }
+  }
+</style>
+
+<section class="new-latest-section">
+  <div class="container container-wide">
+
+    <div class="section-title-wrapper">
+      {% if section.settings.section_title != blank %}
+        <h2>{{ section.settings.section_title | escape }}</h2>
+      {% endif %}
+      <div class="title-underline"></div>
+    </div>
+
+    <div class="latest-editorial-grid direction-aware-container" id="editorial-grid-{{ section.id }}">
+
+      {% for block in section.blocks %}
+        {% if block.type == 'news_card' %}
+
+          {%- liquid
+            assign card_image    = block.settings.card_image
+            assign card_date     = block.settings.card_date
+            assign card_author   = block.settings.card_author
+            assign card_title    = block.settings.card_title
+            assign card_excerpt  = block.settings.card_excerpt
+            assign card_url      = block.settings.card_url | default: '#'
+            assign card_category = block.settings.card_category
+          -%}
+
+          <div
+            class="editorial-card-wrapper"
+            data-category="{{ card_category | escape }}"
+            {{ block.shopify_attributes }}
+          >
+            {% if card_image != blank %}
+              <img
+                src="{{ card_image | image_url: width: 600 }}"
+                alt="{{ card_title | escape }}"
+                loading="lazy"
+                width="600"
+                height="{{ 600 | divided_by: card_image.aspect_ratio | round }}"
+              >
+            {% else %}
+              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endif %}
+
+            <div class="editorial-mask-overlay">
+              <div class="overlay-inner-content">
+
+                {% if card_title != blank %}
+                  <h3 class="editorial-title">{{ card_title | escape }}</h3>
+                {% endif %}
+
+                <p class="editorial-meta">
+                  {% if card_date != blank %}{{ card_date | escape }}{% endif %}
+                  {% if card_date != blank and card_author != blank %} | {% endif %}
+                  {% if card_author != blank %}<span>{{ card_author | escape }}</span>{% endif %}
+                </p>
+
+                <div class="editorial-body-wrapper">
+                  {% if card_excerpt != blank %}
+                    <p class="editorial-description">{{ card_excerpt | escape }}</p>
+                  {% endif %}
+                  <a href="{{ card_url }}" class="read-more-link">READ MORE</a>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        {% endif %}
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+
+<script>
+  // ==========================================================================
+  // 10. DIRECTION-AWARE HOVER OVERLAY ENGINE — instance: {{ section.id }}
+  // ==========================================================================
+  (function () {
+    document.addEventListener("DOMContentLoaded", () => {
+      const grid  = document.getElementById("editorial-grid-{{ section.id }}");
+      if (!grid) return;
+
+      const cards = grid.querySelectorAll(".editorial-card-wrapper");
+
+      const getDirection = (e, item) => {
+        const w = item.offsetWidth;
+        const h = item.offsetHeight;
+        const x = (e.clientX - item.getBoundingClientRect().left - (w / 2)) * (w > h ? (h / w) : 1);
+        const y = (e.clientY - item.getBoundingClientRect().top  - (h / 2)) * (h > w ? (w / h) : 1);
+        return Math.round((((Math.atan2(y, x) * (180 / Math.PI)) + 180) / 90) + 3) % 4;
+      };
+
+      cards.forEach(card => {
+        // Exit Trigger: Instantly remove standard hover state flags
+        card.addEventListener("mouseleave", () => {
+          card.classList.remove("hovered");
+        });
+
+        // Entry Trigger: Perform vector math logic loop on card intersection boundary
+        card.addEventListener("mouseenter", (e) => {
+          // Reset previous positional flags to prevent overlap conflicts
+          card.classList.remove("card-enter-top", "card-enter-right", "card-enter-bottom", "card-enter-left");
+
+          const direction = getDirection(e, card);
+
+          // Map geometric integer coordinate value profile to named CSS class mappings
+          switch (direction) {
+            case 0: card.classList.add("card-enter-top");    break;
+            case 1: card.classList.add("card-enter-right");  break;
+            case 2: card.classList.add("card-enter-bottom"); break;
+            case 3: card.classList.add("card-enter-left");   break;
+          }
+
+          // Force browser repaint calculation cycle to finalize CSS position resets before activation
+          void card.offsetWidth;
+
+          // Activate standard hover state flag trigger loop sequence
+          card.classList.add("hovered");
+        });
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Latest News Section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "New Latest"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "news_card",
+      "name": "News Card",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Card Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "card_image",
+          "label": "Feature Image"
+        },
+        {
+          "type": "header",
+          "content": "Card Content"
+        },
+        {
+          "type": "text",
+          "id": "card_title",
+          "label": "Article Title",
+          "default": "Trend Of 2018"
+        },
+        {
+          "type": "text",
+          "id": "card_date",
+          "label": "Date",
+          "default": "OCT 08, 2018"
+        },
+        {
+          "type": "text",
+          "id": "card_author",
+          "label": "Author Tag",
+          "default": "BY ADMIN",
+          "info": "Displays in accent red color next to the date."
+        },
+        {
+          "type": "textarea",
+          "id": "card_excerpt",
+          "label": "Excerpt / Description",
+          "default": "This is Heading the bank manager long ago won the battle for the heart of..."
+        },
+        {
+          "type": "header",
+          "content": "Link & Filter"
+        },
+        {
+          "type": "url",
+          "id": "card_url",
+          "label": "Read More Link URL"
+        },
+        {
+          "type": "text",
+          "id": "card_category",
+          "label": "Category Tag",
+          "info": "Used as a data attribute for filtering (e.g. trends, runway, street).",
+          "default": "trends"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Latest News Section",
+      "blocks": [
+        {
+          "type": "news_card",
+          "settings": {
+            "card_title": "Trend Of 2018",
+            "card_date": "OCT 08, 2018",
+            "card_author": "BY ADMIN",
+            "card_excerpt": "This is Heading the bank manager long ago won the battle for the heart of...",
+            "card_category": "trends"
+          }
+        },
+        {
+          "type": "news_card",
+          "settings": {
+            "card_title": "Trend Of 2018",
+            "card_date": "OCT 08, 2018",
+            "card_author": "BY ADMIN",
+            "card_excerpt": "This is Heading the bank manager long ago won the battle for the heart of...",
+            "card_category": "runway"
+          }
+        },
+        {
+          "type": "news_card",
+          "settings": {
+            "card_title": "Trend Of 2018",
+            "card_date": "OCT 08, 2018",
+            "card_author": "BY ADMIN",
+            "card_excerpt": "This is Heading the bank manager long ago won the battle for the heart of...",
+            "card_category": "street"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

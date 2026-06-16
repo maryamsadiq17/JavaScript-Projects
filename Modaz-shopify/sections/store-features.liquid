@@ -1,0 +1,210 @@
+{% comment %}
+  ============================================================
+  Section: Store Features
+  File:    sections/store-features.liquid
+  ============================================================
+{% endcomment %}
+
+<style>
+  /* ==========================================================================
+     8. STORE FEATURES ICON BAR SECTION
+     ========================================================================== */
+  #shopify-section-{{ section.id }} .store-features-section {
+      background-color: {{ section.settings.background_color }};
+      padding: 50px 0;
+  }
+
+  #shopify-section-{{ section.id }} .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* Clean 4-column distribution */
+      gap: 20px;
+      text-align: center;
+  }
+
+  /* Individual feature blocks layout align */
+  #shopify-section-{{ section.id }} .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+  }
+
+  /* Precise Modaz Accent Red Color Tracking for the SVG Icons */
+  #shopify-section-{{ section.id }} .feature-icon {
+      font-size: 24px;
+      color: var(--accent-color); /* Signature Brand Red */
+      margin-bottom: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  /* Feature Typography Configurations */
+  #shopify-section-{{ section.id }} .feature-text h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #222222;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+  }
+
+  #shopify-section-{{ section.id }} .feature-text p {
+      font-size: 13px;
+      color: #777777; /* Muted description text layout color */
+      font-weight: 400;
+      margin: 0;
+  }
+
+  /* --- Responsive Layout Breaks --- */
+  @media (max-width: 991px) {
+      #shopify-section-{{ section.id }} .features-grid {
+          grid-template-columns: repeat(2, 1fr); /* 2x2 structural grid array wrap on tablets */
+          gap: 35px 20px;
+      }
+  }
+
+  @media (max-width: 520px) {
+      #shopify-section-{{ section.id }} .features-grid {
+          grid-template-columns: 1fr; /* Clean single column downscale flow on phones */
+          gap: 30px;
+      }
+  }
+</style>
+
+<section class="store-features-section">
+  <div class="container container-wide">
+    <div class="features-grid">
+
+      {% for block in section.blocks %}
+        {% if block.type == 'feature_item' %}
+          <div class="feature-item" {{ block.shopify_attributes }}>
+
+            <div class="feature-icon">
+              {% if block.settings.feature_image != blank %}
+                <img
+                  src="{{ block.settings.feature_image | image_url: width: 48 }}"
+                  alt="{{ block.settings.feature_title | escape }}"
+                  loading="lazy"
+                  width="48"
+                  height="48"
+                >
+              {% elsif block.settings.icon_class != blank %}
+                <i class="{{ block.settings.icon_class | escape }}"></i>
+              {% endif %}
+            </div>
+
+            <div class="feature-text">
+              {% if block.settings.feature_title != blank %}
+                <h3>{{ block.settings.feature_title | escape }}</h3>
+              {% endif %}
+              {% if block.settings.feature_subtitle != blank %}
+                <p>{{ block.settings.feature_subtitle | escape }}</p>
+              {% endif %}
+            </div>
+
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Store Features",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Background"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#f6f6f6"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature_item",
+      "name": "Feature Item",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Icon"
+        },
+        {
+          "type": "image_picker",
+          "id": "feature_image",
+          "label": "Custom Icon Image",
+          "info": "Upload a custom icon image. If set, this overrides the Font Awesome icon class below."
+        },
+        {
+          "type": "text",
+          "id": "icon_class",
+          "label": "Font Awesome Icon Class",
+          "info": "Used when no image is uploaded. e.g. fa-solid fa-truck",
+          "default": "fa-solid fa-truck"
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "text",
+          "id": "feature_title",
+          "label": "Feature Title",
+          "default": "Free Shipping"
+        },
+        {
+          "type": "text",
+          "id": "feature_subtitle",
+          "label": "Feature Description",
+          "default": "Free Shipping on order over $99"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Store Features",
+      "blocks": [
+        {
+          "type": "feature_item",
+          "settings": {
+            "icon_class": "fa-solid fa-truck",
+            "feature_title": "Free Shipping",
+            "feature_subtitle": "Free Shipping on order over $99"
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "icon_class": "fa-solid fa-money-bill-1",
+            "feature_title": "Cash On Delivery",
+            "feature_subtitle": "The Internet Trend To Repeat"
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "icon_class": "fa-solid fa-gift",
+            "feature_title": "Gift For All",
+            "feature_subtitle": "Receive Gift When Subscribe"
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "icon_class": "fa-regular fa-clock",
+            "feature_title": "Opening All Week",
+            "feature_subtitle": "6.00 am - 17.00pm"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

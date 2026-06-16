@@ -1,0 +1,46 @@
+{
+  "sections": {
+    "hero_slider": {
+      "type": "modaz-hero-slider",
+      "settings": {}
+    },
+    "promo_banners": {
+      "type": "modaz-promo-banners",
+      "settings": {}
+    },
+    "new_products": {
+      "type": "modaz-new-products",
+      "settings": {}
+    },
+    "mid_promo_banner": {
+      "type": "modaz-mid-promo-banner",
+      "settings": {}
+    },
+    "best_sale": {
+      "type": "best-sale-section",
+      "settings": {}
+    },
+    "store_features": {
+      "type": "store-features",
+      "settings": {}
+    },
+    "latest_news": {
+      "type": "latest-news-section",
+      "settings": {}
+    },
+    "newsletter": {
+      "type": "newsletter-section",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero_slider",
+    "promo_banners",
+    "new_products",
+    "mid_promo_banner",
+    "best_sale",
+    "store_features",
+    "latest_news",
+    "newsletter"
+  ]
+}
