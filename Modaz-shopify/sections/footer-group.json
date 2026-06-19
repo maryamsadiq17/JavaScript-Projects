@@ -1,10 +1,65 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "name": "Footer",
   "type": "aside",
   "sections": {
     "main_footer": {
       "type": "main-footer",
-      "settings": {}
+      "blocks": {
+        "footer_menu_XRJPTX": {
+          "type": "footer_menu",
+          "settings": {
+            "menu_heading": "",
+            "menu_linklist": "footer-col-1"
+          }
+        },
+        "footer_menu_4TPFrf": {
+          "type": "footer_menu",
+          "settings": {
+            "menu_heading": "",
+            "menu_linklist": "footer-col-2"
+          }
+        },
+        "footer_menu_ewnXPQ": {
+          "type": "footer_menu",
+          "settings": {
+            "menu_heading": "",
+            "menu_linklist": "footer-col-3"
+          }
+        },
+        "contact_info_wM4Qyi": {
+          "type": "contact_info",
+          "settings": {
+            "logo_text_main": "Mo",
+            "logo_text_accent": "daz.",
+            "contact_address": "112 Kingdom, NA 12, New York",
+            "contact_phone": "+12 345 678 910",
+            "contact_email": "infor.deercreative@gmail.com",
+            "show_social_icons": true
+          }
+        }
+      },
+      "block_order": [
+        "footer_menu_XRJPTX",
+        "footer_menu_4TPFrf",
+        "footer_menu_ewnXPQ",
+        "contact_info_wM4Qyi"
+      ],
+      "settings": {
+        "social_facebook": "",
+        "social_instagram": "",
+        "social_twitter": "",
+        "social_pinterest": "",
+        "copyright_text": "Copyright @2018 Modaz"
+      }
     }
   },
   "order": [

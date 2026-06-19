@@ -1,44 +1,399 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero_slider": {
       "type": "modaz-hero-slider",
-      "settings": {}
+      "blocks": {
+        "slide_HadUGx": {
+          "type": "slide",
+          "settings": {
+            "bg_image": "shopify://shop_images/slider-bg-5_4b89143b-a9b0-42dd-ba5e-07c864c97ec8.jpg",
+            "bg_image_url": "",
+            "overlay_style": "dark",
+            "slide_style": "dark",
+            "text_alignment": "left",
+            "subheading": "NEW COLLECTION 2025",
+            "heading": "New Arrivals",
+            "description": "UP TO [30% OFF]",
+            "btn_label": "SHOP NOW",
+            "btn_url": "",
+            "btn_style": "filled",
+            "btn_shadow": false
+          }
+        },
+        "slide_tbBiXq": {
+          "type": "slide",
+          "settings": {
+            "bg_image": "shopify://shop_images/slider-bg-1_a4d7141b-f63f-47e3-b904-55d6aebd4361.jpg",
+            "bg_image_url": "",
+            "overlay_style": "dark",
+            "slide_style": "dark",
+            "text_alignment": "center",
+            "subheading": "NEW COLLECTION 2025",
+            "heading": "New Arrivals",
+            "description": "UP TO [30% OFF]",
+            "btn_label": "SHOP NOW",
+            "btn_url": "",
+            "btn_style": "filled",
+            "btn_shadow": false
+          }
+        }
+      },
+      "block_order": [
+        "slide_HadUGx",
+        "slide_tbBiXq"
+      ],
+      "settings": {
+        "accent_color": "#f63440",
+        "timeline_color": "#f63440",
+        "slider_height": 75,
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "show_arrows": false,
+        "show_dots": true
+      }
     },
-    "promo_banners": {
+    "modaz_promo_banners_t8zQbT": {
       "type": "modaz-promo-banners",
-      "settings": {}
+      "blocks": {
+        "promo_card_P6egkt": {
+          "type": "promo_card",
+          "settings": {
+            "card_image": "shopify://shop_images/imgbox-1-375x500.jpg",
+            "card_image_url": "",
+            "badge_text": "FOR MEN'S",
+            "promo_tag": "",
+            "card_url": ""
+          }
+        },
+        "promo_card_W8C6pJ": {
+          "type": "promo_card",
+          "settings": {
+            "card_image": "shopify://shop_images/imgbox-1-375x240.jpg",
+            "card_image_url": "",
+            "badge_text": "FOR KID'S",
+            "promo_tag": "",
+            "card_url": ""
+          }
+        },
+        "promo_card_ayW67F": {
+          "type": "promo_card",
+          "settings": {
+            "card_image": "shopify://shop_images/3_b5b698c9-3f3d-43ec-be15-4da5bbebc2d9.jpg",
+            "card_image_url": "",
+            "badge_text": "ACCESSORIES",
+            "promo_tag": "",
+            "card_url": ""
+          }
+        },
+        "promo_card_PjHd3Q": {
+          "type": "promo_card",
+          "settings": {
+            "card_image": "shopify://shop_images/imgbox-2-375x500.jpg",
+            "card_image_url": "",
+            "badge_text": "FOR WOMEN'S",
+            "promo_tag": "",
+            "card_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "promo_card_P6egkt",
+        "promo_card_W8C6pJ",
+        "promo_card_ayW67F",
+        "promo_card_PjHd3Q"
+      ],
+      "name": "Modaz Promo Banners",
+      "settings": {
+        "accent_color": "#f63440",
+        "primary_color": "#222222",
+        "bg_color": "#ffffff",
+        "section_padding": 64,
+        "grid_gap": 30,
+        "tall_card_height": 560,
+        "badge_bg_color": "#ffffff",
+        "badge_text_color": "#222222",
+        "header_alignment": "center",
+        "section_eyebrow": "SHOP BY CATEGORY",
+        "section_heading": "Browse Our Collections"
+      }
     },
-    "new_products": {
+    "modaz_new_products_zbDyBy": {
       "type": "modaz-new-products",
-      "settings": {}
+      "blocks": {
+        "product_card_tAwYb3": {
+          "type": "product_card",
+          "settings": {
+            "product": "the-collection-snowboard-liquid",
+            "badge_label": "New",
+            "badge_type": "new",
+            "show_wishlist": true
+          }
+        },
+        "product_card_zUrheC": {
+          "type": "product_card",
+          "settings": {
+            "product": "cotton-white-underweaer-block-out-edition-12",
+            "badge_label": "New",
+            "badge_type": "new",
+            "show_wishlist": true
+          }
+        },
+        "product_card_f3GwCx": {
+          "type": "product_card",
+          "settings": {
+            "product": "the-collection-snowboard-oxygen",
+            "badge_label": "Sale",
+            "badge_type": "sale",
+            "show_wishlist": true
+          }
+        },
+        "product_card_PQhngp": {
+          "type": "product_card",
+          "settings": {
+            "product": "cotton-white-underweaer-block-out-edition-11",
+            "badge_label": "Sale",
+            "badge_type": "sale",
+            "show_wishlist": true
+          }
+        }
+      },
+      "block_order": [
+        "product_card_tAwYb3",
+        "product_card_zUrheC",
+        "product_card_f3GwCx",
+        "product_card_PQhngp"
+      ],
+      "name": "Modaz New Products",
+      "settings": {
+        "section_heading": "New Product",
+        "accent_color": "#f63440",
+        "accent_hover_color": "#d6222d",
+        "badge_new_color": "#7bc779",
+        "badge_sale_color": "#f63440",
+        "columns": 4,
+        "section_padding": 80,
+        "image_height": 280
+      }
     },
     "mid_promo_banner": {
       "type": "modaz-mid-promo-banner",
-      "settings": {}
+      "settings": {
+        "background_image": "shopify://shop_images/bg-parallax3_3ae64368-7277-4a80-a84b-097420c2a01b.jpg",
+        "subtitle": "NEW TREND 2018",
+        "heading": "Women's Collection",
+        "description": "Big Sale of this Week",
+        "button_label": "SHOP NOW",
+        "button_url": ""
+      }
     },
-    "best_sale": {
+    "best_sale_section_rpWihR": {
       "type": "best-sale-section",
-      "settings": {}
+      "blocks": {
+        "sale_item_RFYPnH": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/1_861a4a06-d828-4f2e-91dd-4134525eb3b7.jpg",
+            "badge_text": "",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "",
+            "item_category": "kids",
+            "item_url": ""
+          }
+        },
+        "sale_item_3KFHnz": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/9_27c920bd-df27-474f-9936-04e623655bda.jpg",
+            "badge_text": "New",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "",
+            "item_category": "accessories",
+            "item_url": ""
+          }
+        },
+        "sale_item_TCcJLg": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/15_d205331e-c325-4b3d-8314-3991d7df96da.jpg",
+            "badge_text": "",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "",
+            "item_category": "accessories",
+            "item_url": ""
+          }
+        },
+        "sale_item_q6BjmD": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/6_5b5592d0-0ed1-443d-b2d8-107ff41473ba.jpg",
+            "badge_text": "Sale",
+            "badge_style": "badge-red",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "$120.00",
+            "item_category": "men",
+            "item_url": ""
+          }
+        },
+        "sale_item_J6fdtU": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/4_1_c7afd0b3-bc01-4baa-ad4f-db6ce4957aab.jpg",
+            "badge_text": "New",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "",
+            "item_category": "women",
+            "item_url": ""
+          }
+        },
+        "sale_item_GTagRQ": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/13_96e591fd-ea15-4764-b847-d5bee2506422.jpg",
+            "badge_text": "Sale",
+            "badge_style": "badge-red",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "$150.00",
+            "item_category": "women",
+            "item_url": ""
+          }
+        },
+        "sale_item_kEpydE": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/2.jpg",
+            "badge_text": "",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "",
+            "item_category": "accessories",
+            "item_url": ""
+          }
+        },
+        "sale_item_BVxmaW": {
+          "type": "sale_item",
+          "settings": {
+            "item_image": "shopify://shop_images/7.jpg",
+            "badge_text": "New",
+            "badge_style": "badge-green",
+            "item_title": "Cotton White Underwear Block Out Edition",
+            "item_price": "$100.00",
+            "item_price_old": "",
+            "item_category": "men",
+            "item_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "sale_item_RFYPnH",
+        "sale_item_3KFHnz",
+        "sale_item_TCcJLg",
+        "sale_item_q6BjmD",
+        "sale_item_J6fdtU",
+        "sale_item_GTagRQ",
+        "sale_item_kEpydE",
+        "sale_item_BVxmaW"
+      ],
+      "name": "Best Sale Section",
+      "settings": {
+        "section_title": "Best Sale"
+      }
     },
     "store_features": {
       "type": "store-features",
-      "settings": {}
+      "settings": {
+        "background_color": "#f6f6f6"
+      }
     },
     "latest_news": {
       "type": "latest-news-section",
-      "settings": {}
+      "blocks": {
+        "news_card_LRDqdP": {
+          "type": "news_card",
+          "settings": {
+            "card_image": "shopify://shop_images/new-lastest-1-370x280.jpg",
+            "card_title": "Trend Of 2018",
+            "card_date": "OCT 08, 2018",
+            "card_author": "BY ADMIN",
+            "card_excerpt": "This is Heading the bank manager long ago won the battle for the heart of...",
+            "card_url": "",
+            "card_category": "trends"
+          }
+        },
+        "news_card_UQLxnK": {
+          "type": "news_card",
+          "settings": {
+            "card_image": "shopify://shop_images/new-lastest-2-370x280.jpg",
+            "card_title": "Trend Of 2018",
+            "card_date": "OCT 08, 2018",
+            "card_author": "BY ADMIN",
+            "card_excerpt": "This is Heading the bank manager long ago won the battle for the heart of...",
+            "card_url": "",
+            "card_category": "trends"
+          }
+        },
+        "news_card_BzUUGi": {
+          "type": "news_card",
+          "settings": {
+            "card_image": "shopify://shop_images/new-lastest-3-370x280.jpg",
+            "card_title": "Trend Of 2018",
+            "card_date": "OCT 08, 2018",
+            "card_author": "BY ADMIN",
+            "card_excerpt": "This is Heading the bank manager long ago won the battle for the heart of...",
+            "card_url": "",
+            "card_category": "trends"
+          }
+        }
+      },
+      "block_order": [
+        "news_card_LRDqdP",
+        "news_card_UQLxnK",
+        "news_card_BzUUGi"
+      ],
+      "settings": {
+        "section_title": "New Latest"
+      }
     },
     "newsletter": {
       "type": "newsletter-section",
-      "settings": {}
+      "settings": {
+        "heading": "Sign up for Send Newsletter",
+        "input_placeholder": "Your Email",
+        "button_label": "SUBSCRIBE",
+        "background_color": "#f6f6f6",
+        "social_facebook": "#",
+        "social_twitter": "#",
+        "social_google": "#",
+        "social_behance": "#",
+        "social_linkedin": "#"
+      }
     }
   },
   "order": [
     "hero_slider",
-    "promo_banners",
-    "new_products",
+    "modaz_promo_banners_t8zQbT",
+    "modaz_new_products_zbDyBy",
     "mid_promo_banner",
-    "best_sale",
+    "best_sale_section_rpWihR",
     "store_features",
     "latest_news",
     "newsletter"
